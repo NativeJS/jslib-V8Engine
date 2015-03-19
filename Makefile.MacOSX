@@ -1,0 +1,80 @@
+##
+# V8Engine MacOSX makefile
+# description     : Mac OSX dependency installer for V8Engine
+# author          : Almir Kadric
+# created on      : 2014-10-29
+##
+
+
+##
+# Global variables
+##
+
+# Set default shell
+SHELL = /bin/bash
+
+# Function to check if a git url has already been cloned, if not it will clone it
+define gitClone
+	test -d $2 || git clone $1 $2
+endef
+
+#
+BUILDDIR = ./build/MacOSX
+DEPSDIR = ./deps
+V8REPO = $(DEPSDIR)/v8
+
+
+##
+# Make Targets
+##
+
+# List of target which should be run every time without caching
+.PHONY: help clean clean-deps clean-all
+
+# Default make target
+%:: help
+Default: help
+help:
+	@$(MAKE) -s
+clean:
+	@$(MAKE) clean
+clean-deps:
+	@$(MAKE) clean-deps
+clean-all:
+	@$(MAKE) clean-all
+
+
+###
+# V8 Engine Library Targets
+###
+.PHONY: build deps deps-repo
+
+# Target to build V8 library
+build: deps build-headers		\
+	$(BUILDDIR)/icudata.a		\
+	$(BUILDDIR)/icui18n.a		\
+	$(BUILDDIR)/icuuc.a			\
+	$(BUILDDIR)/v8_base.a		\
+	$(BUILDDIR)/v8_libbase.a	\
+	$(BUILDDIR)/v8_nosnapshot.a
+
+#
+build-headers:
+	$(MAKE) build-headers
+
+#
+deps-repo:
+	$(MAKE) deps-repo
+
+#
+deps: deps-repo
+	# Setup V8 Engine build dependencies
+	$(MAKE) -C $(V8REPO) builddeps
+
+	# Configure & Build V8 Engine libraries
+	$(MAKE) -C $(V8REPO) x64.release component=static_library
+
+#
+$(BUILDDIR)/%.a: $(V8REPO)/out/x64.release/lib%.a
+	mkdir -p $(BUILDDIR)
+	cp $^ $@

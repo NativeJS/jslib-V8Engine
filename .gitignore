@@ -1,0 +1,7 @@
+/.idea/
+/build/*/*.a
+/build/*/*.lib
+/build/*/*.so
+/build/*/*.dll
+/deps/
+/test/entrypoints/MacOSX/test
