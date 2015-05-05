@@ -18,7 +18,7 @@ SHELL = /bin/bash
 # NOTE: Indentation for this section must be spaces and not tabs
 ifndef PLATFORM
     ifeq ($(OS),Windows_NT)
-        PLATFORM=Win64
+        PLATFORM=Windows
     else
         UNAME_S := $(shell uname -s)
         ifeq ($(UNAME_S),Linux)
@@ -31,6 +31,33 @@ ifndef PLATFORM
     endif
 endif
 
+#
+ARCH ?= x64
+LTYPE ?= static
+BUILDDIR = ./build/$(PLATFORM)
+DEPSDIR = ./deps
+
+# Paths and URLs for V8 engine
+# NOTE: Unfortunately the googlesource url doesn't have tags, so we get tags from the github mirror
+# NOTE: To find latest stable version check what latest stable chrome is using here: http://omahaproxy.appspot.com
+V8REPO = "$(DEPSDIR)/v8"
+V8TAGURL = "https://github.com/v8/v8-git-mirror"
+V8VERSION = "4.2.77.18"
+
+# Paths and URL for depot_tools
+DEPOTTOOLSURL = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
+DEPOTTOOLSREPO = $(shell cd $(DEPSDIR) && pwd)/depot_tools
+
+# Function to check if a depot_tools pacakge has already been retrieved, if not fetch it
+define depotFetch
+	test -d $1 || PATH="$$PATH:$(DEPOTTOOLSREPO)" fetch $1
+endef
+
+# Function to sync up dependencies for packages listed in .gclient file
+define depotGSync
+	PATH="$$PATH:$(DEPOTTOOLSREPO)" gclient sync
+endef
+
 # Function to check if a git url has already been cloned, if not it will clone it
 define gitClone
 	test -d $2 || git clone $1 $2
@@ -40,21 +67,6 @@ endef
 define gitAddRemote
 	git remote -v | grep -q "^$1" || git remote add $1 $2
 endef
-
-#
-BUILDDIR = ./build/$(PLATFORM)
-HEADERDIR = ./include
-DEPSDIR = ./deps
-TESTDIR = ./test
-TESTENTRYPOINT = $(TESTDIR)/entrypoints/$(PLATFORM)
-
-# Get code from "chromium.googlesource.com". It's faster (and more reliable) than GitHub.com
-V8REPO = "$(DEPSDIR)/v8"
-V8REPOURL = "https://chromium.googlesource.com/external/v8.git"
-
-# Unfortunately the googlesource url doesn't have tags, so we get tags from the github mirror
-V8TAGURL = "https://github.com/v8/v8-git-mirror"
-V8VERSION = "3.30.37"
 
 
 
@@ -91,20 +103,23 @@ help:
 ##
 
 #
-.PHONY: build build-libs build-headers compress decompress deps deps-repo
+.PHONY: build build-libs copy-headers compress decompress deps deps-repo
 
 define helpBuild
-  build           Build V8 Engine library files and create archive
+  build           Build V8 Engine library files [defaults: ARCH=x64 LTYPE=static]
+  build-all       Build V8 Engine library shared and static files for all archs
+  compress        Compress build into split files
   decompress      Decompress build archive
 endef
 export helpBuild
 
 #
-build: build-libs compress
+build:
+	$(MAKE) -f Makefile.$(PLATFORM) build ARCH=$(ARCH) LTYPE=$(LTYPE)
 
 #
-build-libs:
-	$(MAKE) -f Makefile.$(PLATFORM) build
+build-all:
+	$(MAKE) -f Makefile.$(PLATFORM) build-all
 
 #
 compress:
@@ -115,8 +130,8 @@ decompress:
 	cd $(BUILDDIR) && cat ./$(PLATFORM)_archive.tgz_* | tar xz
 
 #
-build-headers:
-	cp -r $(V8REPO)/include/ ./include/
+copy-headers:
+	cp -r $(V8REPO)/include ./
 
 #
 deps:
@@ -124,11 +139,15 @@ deps:
 
 #
 deps-repo:
-	# Get V8Engine via git
-	$(call gitClone,$(V8REPOURL),$(V8REPO))
+	# Get depot_tools via git
+	$(call gitClone,$(DEPOTTOOLSURL),"$(DEPOTTOOLSREPO)")
+
+	# Get V8Engine via depot_tools fetch and checkout correct version
+	cd $(DEPSDIR) && $(call depotFetch,v8)
 	cd $(V8REPO) && $(call gitAddRemote,github,$(V8TAGURL))
 	cd $(V8REPO) && git fetch --tags github
 	cd $(V8REPO) && git checkout $(V8VERSION)
+	cd $(DEPSDIR) && $(call depotGSync)
 
 
 
@@ -137,27 +156,19 @@ deps-repo:
 ##
 
 #
-.PHONY: test test-compile test-execute
+.PHONY: test-helloworld
 
 define helpTest
-  test            Compile and run test application
+  test-helloworld Compile and run helloworld application
 endef
 export helpTest
 
-GXX = g++ -std=c++11 -stdlib=libstdc++
-V8_LIBS = $(BUILDDIR)/v8_*.a $(BUILDDIR)/icu*.a
-
 #
-test: test-compile test-execute
-
-#
-# TODO: make runTests.cpp and entrypoint seperate targets so that make caching works
-test-compile:
-	$(GXX) -I $(HEADERDIR) $(V8_LIBS) $(TESTENTRYPOINT)/entrypoint.* $(TESTDIR)/runTests.cpp -o $(TESTENTRYPOINT)/test
-
-#
-test-execute:
-	$(TESTENTRYPOINT)/test
+test-helloworld:
+	$(MAKE) -C ./test/helloworld/static build
+	$(MAKE) -C ./test/helloworld/shared build
+	$(MAKE) -C ./test/helloworld/static run
+	$(MAKE) -C ./test/helloworld/shared run
 
 
 

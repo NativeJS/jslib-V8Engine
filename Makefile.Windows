@@ -1,0 +1,158 @@
+##
+# V8Engine Windows makefile
+# description     : Windows dependency installer for V8Engine
+# author          : Almir Kadric
+# created on      : 2014-10-29
+##
+
+
+
+##
+# Global variables
+##
+
+# Set default shell
+SHELL = /bin/bash
+
+# Function to check if a git url has already been cloned, if not it will clone it
+define gitClone
+	test -d $2 || git clone $1 $2
+endef
+
+#
+ARCH ?= x64
+LTYPE ?= static
+BUILDDIR = ./build/Windows.$(ARCH).$(LTYPE)
+DEPSDIR = ./deps
+V8REPO = $(DEPSDIR)/v8
+
+#
+MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
+
+
+
+##
+# Make Targets
+##
+
+# List of target which should be run every time without caching
+.PHONY: help clean clean-deps clean-all
+
+# Default make target
+%:: help
+Default: help
+help:
+	@$(MAKE) -s
+clean:
+	@$(MAKE) clean
+clean-deps:
+	@$(MAKE) clean-deps
+clean-all:
+	@$(MAKE) clean-all
+
+
+
+###
+# V8 Engine Library Targets
+###
+.PHONY: build deps-repo copy-headers build-libs
+
+# Build V8 library with current architecture and library type settings
+build: deps-repo copy-headers build-libs build-$(LTYPE)
+
+#
+build-all:
+	$(MAKE) -f Makefile.Windows clean-libs
+	$(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=static
+	$(MAKE) -f Makefile.Windows clean-libs
+	$(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=shared
+	$(MAKE) -f Makefile.Windows clean-libs
+	$(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=static
+	$(MAKE) -f Makefile.Windows clean-libs
+	$(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=shared
+
+#
+build-static:                               \
+	$(BUILDDIR)/release/icudt.dll           \
+	$(BUILDDIR)/release/icui18n.lib         \
+	$(BUILDDIR)/release/icuuc.lib           \
+	$(BUILDDIR)/release/v8_base.lib         \
+	$(BUILDDIR)/release/v8_libbase.lib      \
+	$(BUILDDIR)/release/v8_libplatform.lib  \
+	$(BUILDDIR)/release/v8_nosnapshot.lib   \
+	$(BUILDDIR)/release/v8_snapshot.lib     \
+	$(BUILDDIR)/debug/icudt.dll             \
+	$(BUILDDIR)/debug/icui18n.lib           \
+	$(BUILDDIR)/debug/icuuc.lib             \
+	$(BUILDDIR)/debug/v8_base.lib           \
+	$(BUILDDIR)/debug/v8_libbase.lib        \
+	$(BUILDDIR)/debug/v8_libplatform.lib    \
+	$(BUILDDIR)/debug/v8_nosnapshot.lib     \
+	$(BUILDDIR)/debug/v8_snapshot.lib
+
+#
+build-shared:                               \
+	$(BUILDDIR)/release/icudt.dll           \
+	$(BUILDDIR)/release/icui18n.dll         \
+	$(BUILDDIR)/release/icuuc.dll           \
+	$(BUILDDIR)/release/v8.dll              \
+	$(BUILDDIR)/release/icui18n.lib         \
+	$(BUILDDIR)/release/icuuc.lib           \
+	$(BUILDDIR)/release/v8.lib              \
+	$(BUILDDIR)/release/v8_base.lib         \
+	$(BUILDDIR)/release/v8_libbase.lib      \
+	$(BUILDDIR)/release/v8_libplatform.lib  \
+	$(BUILDDIR)/release/v8_nosnapshot.lib   \
+	$(BUILDDIR)/release/v8_snapshot.lib     \
+	$(BUILDDIR)/debug/icudt.dll             \
+	$(BUILDDIR)/debug/icui18n.dll           \
+	$(BUILDDIR)/debug/icuuc.dll             \
+	$(BUILDDIR)/debug/v8.dll                \
+	$(BUILDDIR)/debug/icui18n.lib           \
+	$(BUILDDIR)/debug/icuuc.lib             \
+	$(BUILDDIR)/debug/v8.lib                \
+	$(BUILDDIR)/debug/v8_base.lib           \
+	$(BUILDDIR)/debug/v8_libbase.lib        \
+	$(BUILDDIR)/debug/v8_libplatform.lib    \
+	$(BUILDDIR)/debug/v8_nosnapshot.lib     \
+	$(BUILDDIR)/debug/v8_snapshot.lib       \
+
+#
+deps-repo:
+	$(MAKE) deps-repo
+
+#
+copy-headers:
+	$(MAKE) copy-headers
+
+#
+build-libs:
+	# Configure & Build V8 Engine libraries using Microsoft Visual Studio
+	cd $(V8REPO) && ./build/gyp_v8 -Dcomponent=$(LTYPE)_library -Dtarget_arch=$(ARCH)
+	cd $(V8REPO) && $(MSBUILD) /t:Build /p:Configuration=Debug build/all.sln
+	cd $(V8REPO) && $(MSBUILD) /t:Build /p:Configuration=Release build/all.sln
+
+#
+$(BUILDDIR)/release/%.dll: $(V8REPO)/build/Release/%.dll
+	mkdir -p $(BUILDDIR)/release
+	cp $^ $@
+
+#
+$(BUILDDIR)/release/%.lib: $(V8REPO)/build/Release/lib/%.lib
+	mkdir -p $(BUILDDIR)/release
+	cp $^ $@
+
+#
+$(BUILDDIR)/debug/%.dll: $(V8REPO)/build/Debug/%.dll
+	mkdir -p $(BUILDDIR)/debug
+	cp $^ $@
+
+#
+$(BUILDDIR)/debug/%.lib: $(V8REPO)/build/Debug/lib/%.lib
+	mkdir -p $(BUILDDIR)/debug
+	cp $^ $@
+
+#
+clean-libs:
+	cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Debug build/all.sln
+	cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Release build/all.sln

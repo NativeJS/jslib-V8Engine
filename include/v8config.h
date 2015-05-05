@@ -67,6 +67,7 @@
 //  V8_OS_POSIX         - POSIX compatible (mostly everything except Windows)
 //  V8_OS_QNX           - QNX Neutrino
 //  V8_OS_SOLARIS       - Sun Solaris and OpenSolaris
+//  V8_OS_AIX           - AIX
 //  V8_OS_WIN           - Microsoft Windows
 
 #if defined(__ANDROID__)
@@ -89,6 +90,9 @@
 #elif defined(__sun)
 # define V8_OS_POSIX 1
 # define V8_OS_SOLARIS 1
+#elif defined(_AIX)
+#define V8_OS_POSIX 1
+#define V8_OS_AIX 1
 #elif defined(__FreeBSD__)
 # define V8_OS_BSD 1
 # define V8_OS_FREEBSD 1
@@ -142,13 +146,12 @@
 // -----------------------------------------------------------------------------
 // Compiler detection
 //
-//  V8_CC_CLANG   - Clang
-//  V8_CC_GNU     - GNU C++
+//  V8_CC_GNU     - GCC, or clang in gcc mode
 //  V8_CC_INTEL   - Intel C++
 //  V8_CC_MINGW   - Minimalist GNU for Windows
 //  V8_CC_MINGW32 - Minimalist GNU for Windows (mingw32)
 //  V8_CC_MINGW64 - Minimalist GNU for Windows (mingw-w64)
-//  V8_CC_MSVC    - Microsoft Visual C/C++
+//  V8_CC_MSVC    - Microsoft Visual C/C++, or clang in cl.exe mode
 //
 // C++11 feature detection
 //
@@ -182,6 +185,7 @@
 //  V8_HAS_DECLSPEC_ALIGN               - __declspec(align(n)) supported
 //  V8_HAS_DECLSPEC_DEPRECATED          - __declspec(deprecated) supported
 //  V8_HAS_DECLSPEC_NOINLINE            - __declspec(noinline) supported
+//  V8_HAS_DECLSPEC_SELECTANY           - __declspec(selectany) supported
 //  V8_HAS___FINAL                      - __final supported in non-C++11 mode
 //  V8_HAS___FORCEINLINE                - __forceinline supported
 //
@@ -193,7 +197,11 @@
 
 #if defined(__clang__)
 
-# define V8_CC_CLANG 1
+#if defined(__GNUC__)  // Clang in gcc mode.
+# define V8_CC_GNU 1
+#elif defined(_MSC_VER)  // Clang in cl mode.
+# define V8_CC_MSVC 1
+#endif
 
 // Clang defines __alignof__ as alias for __alignof
 # define V8_HAS___ALIGNOF 1
@@ -282,6 +290,7 @@
 # define V8_HAS_DECLSPEC_ALIGN 1
 # define V8_HAS_DECLSPEC_DEPRECATED 1
 # define V8_HAS_DECLSPEC_NOINLINE 1
+# define V8_HAS_DECLSPEC_SELECTANY 1
 
 # define V8_HAS___FORCEINLINE 1
 

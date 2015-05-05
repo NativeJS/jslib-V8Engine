@@ -5,9 +5,6 @@ that it may be easily dropped into projects for immediate use. It will also come
 compile the libraries so that users may inspect the options used as well as re-compile the libraries if they see it
 necessary.
 
-As dynamic library files can be acquired via other means on each platform (yum, brew, not supported on IOS and Adnroid).
-This project for now will focus only delivering static library files.
-
 Branches & Tags
 ---------------
 This project will be tagged according to the V8 version that was compiled.
@@ -36,11 +33,11 @@ The following platforms are supported by this project and will be present within
  * IOS (arm)
  * Linux (64bit)
  * MacOSX (64bit)
- * Windows (64bit)
+ * Windows (ia32 shared, ia32 static, x64 shared, x64 static)
 
 Licenses
 --------
 All original code and scripts within the project are subject to the [MIT license](LICENSE)
 
 All dependencies and their compiled binary files are subject to their original respective licenses as found in their
-repositories.
+respective repositories.

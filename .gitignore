@@ -1,7 +1,13 @@
-/.idea/
+/.gitattributes
+/.idea
 /build/*/*.a
 /build/*/*.lib
 /build/*/*.so
 /build/*/*.dll
 /deps/
-/test/entrypoints/MacOSX/test
+/test/helloworld/*/helloworld.opensdf
+/test/helloworld/*/helloworld.sdf
+/test/helloworld/*/helloworld.v12.suo
+/test/helloworld/*/helloworld.vcxproj.user
+/test/helloworld/*/x64
+/test/helloworld/*/Win32
