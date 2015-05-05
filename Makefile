@@ -34,7 +34,7 @@ endif
 #
 ARCH ?= x64
 LTYPE ?= static
-BUILDDIR = ./build/$(PLATFORM)
+BUILDDIR = ./build
 DEPSDIR = ./deps
 
 # Paths and URLs for V8 engine
@@ -123,11 +123,19 @@ build-all:
 
 #
 compress:
-	cd $(BUILDDIR) && tar -cz $$(find . | egrep '.(a|lib|so|dll)') | split -b 50m - ./$(PLATFORM)_archive.tgz_
+	cd $(BUILDDIR) && \
+	for platform in $$(ls -d $(PLATFORM).*); do \
+		(cd $${platform}/debug && tar -cz $$(find . | egrep '.(a|lib|so|dll)') | split -b 50m - ./$${platform}_debug.tgz_); \
+		(cd $${platform}/release && tar -cz $$(find . | egrep '.(a|lib|so|dll)') | split -b 50m - ./$${platform}_release.tgz_); \
+	done
 
 #
 decompress:
-	cd $(BUILDDIR) && cat ./$(PLATFORM)_archive.tgz_* | tar xz
+	cd $(BUILDDIR) && \
+    for platform in $$(ls -d $(PLATFORM).*); do \
+    	(cd $${platform}/debug && cat ./$${platform}_debug.tgz_* | tar xz); \
+    	(cd $${platform}/release && cat ./$${platform}_release.tgz_* | tar xz); \
+    done
 
 #
 copy-headers:
@@ -188,7 +196,7 @@ export helpClean
 
 #
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf $(BUILDDIR)/$(PLATFORM).*
 
 #
 clean-deps:
