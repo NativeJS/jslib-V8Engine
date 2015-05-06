@@ -5,7 +5,7 @@ that it may be easily dropped into projects for immediate use. It will also come
 compile the libraries so that users may inspect the options used as well as re-compile the libraries if they see it
 necessary.
 
-Branches & Tags
+Branching & Tagging
 ---------------
 This project will be tagged according to the V8 version that was compiled.
 

@@ -1,6 +1,6 @@
 ##
 # V8Engine Windows makefile
-# description     : Windows dependency installer for V8Engine
+# description     : Windows library builder for V8Engine
 # author          : Almir Kadric
 # created on      : 2014-10-29
 ##
