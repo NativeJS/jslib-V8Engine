@@ -41,7 +41,7 @@ MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
 ##
 
 #
-.PHONY: build build-Windows run run-Windows
+.PHONY: build build-Windows run run-Windows clean build-Windows
 
 #
 build: build-$(PLATFORM)
@@ -62,3 +62,13 @@ run-Windows:
 	./x64/Release/helloworld.exe
 	./Win32/Debug/helloworld.exe
 	./Win32/Release/helloworld.exe
+
+#
+clean: clean-$(PLATFORM)
+
+#
+clean-Windows:
+	$(MSBUILD) /t:Clean /p:Configuration=Debug /p:Platform=x64 helloworld.sln
+	$(MSBUILD) /t:Clean /p:Configuration=Debug /p:Platform=Win32 helloworld.sln
+	$(MSBUILD) /t:Clean /p:Configuration=Release /p:Platform=x64 helloworld.sln
+	$(MSBUILD) /t:Clean /p:Configuration=Release /p:Platform=Win32 helloworld.sln

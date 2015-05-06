@@ -22,7 +22,8 @@ endef
 #
 ARCH ?= x64
 LTYPE ?= static
-BUILDDIR = ./build/Windows.$(ARCH).$(LTYPE)
+BUILDDIR = ./build
+PLATFORMDIR = $(BUILDDIR)/Windows.$(ARCH).$(LTYPE)
 DEPSDIR = ./deps
 V8REPO = $(DEPSDIR)/v8
 
@@ -62,60 +63,60 @@ build: deps-repo copy-headers build-libs build-$(LTYPE)
 
 #
 build-all:
-	$(MAKE) -f Makefile.Windows clean-libs
-	$(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=static
-	$(MAKE) -f Makefile.Windows clean-libs
-	$(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=shared
-	$(MAKE) -f Makefile.Windows clean-libs
-	$(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=static
-	$(MAKE) -f Makefile.Windows clean-libs
-	$(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=shared
+	test -d $(BUILDDIR)/Windows.ia32.shared || $(MAKE) -f Makefile.Windows clean-libs
+	test -d $(BUILDDIR)/Windows.ia32.shared || $(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=shared
+	test -d $(BUILDDIR)/Windows.ia32.static || $(MAKE) -f Makefile.Windows clean-libs
+	test -d $(BUILDDIR)/Windows.ia32.static || $(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=static
+	test -d $(BUILDDIR)/Windows.x64.shared || $(MAKE) -f Makefile.Windows clean-libs
+	test -d $(BUILDDIR)/Windows.x64.shared || $(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=shared
+	test -d $(BUILDDIR)/Windows.x64.static || $(MAKE) -f Makefile.Windows clean-libs
+	test -d $(BUILDDIR)/Windows.x64.static || $(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=static
 
 #
-build-static:                               \
-	$(BUILDDIR)/release/icudt.dll           \
-	$(BUILDDIR)/release/icui18n.lib         \
-	$(BUILDDIR)/release/icuuc.lib           \
-	$(BUILDDIR)/release/v8_base.lib         \
-	$(BUILDDIR)/release/v8_libbase.lib      \
-	$(BUILDDIR)/release/v8_libplatform.lib  \
-	$(BUILDDIR)/release/v8_nosnapshot.lib   \
-	$(BUILDDIR)/release/v8_snapshot.lib     \
-	$(BUILDDIR)/debug/icudt.dll             \
-	$(BUILDDIR)/debug/icui18n.lib           \
-	$(BUILDDIR)/debug/icuuc.lib             \
-	$(BUILDDIR)/debug/v8_base.lib           \
-	$(BUILDDIR)/debug/v8_libbase.lib        \
-	$(BUILDDIR)/debug/v8_libplatform.lib    \
-	$(BUILDDIR)/debug/v8_nosnapshot.lib     \
-	$(BUILDDIR)/debug/v8_snapshot.lib
+build-static:                                  \
+	$(PLATFORMDIR)/release/icudt.dll           \
+	$(PLATFORMDIR)/release/icui18n.lib         \
+	$(PLATFORMDIR)/release/icuuc.lib           \
+	$(PLATFORMDIR)/release/v8_base.lib         \
+	$(PLATFORMDIR)/release/v8_libbase.lib      \
+	$(PLATFORMDIR)/release/v8_libplatform.lib  \
+	$(PLATFORMDIR)/release/v8_nosnapshot.lib   \
+	$(PLATFORMDIR)/release/v8_snapshot.lib     \
+	$(PLATFORMDIR)/debug/icudt.dll             \
+	$(PLATFORMDIR)/debug/icui18n.lib           \
+	$(PLATFORMDIR)/debug/icuuc.lib             \
+	$(PLATFORMDIR)/debug/v8_base.lib           \
+	$(PLATFORMDIR)/debug/v8_libbase.lib        \
+	$(PLATFORMDIR)/debug/v8_libplatform.lib    \
+	$(PLATFORMDIR)/debug/v8_nosnapshot.lib     \
+	$(PLATFORMDIR)/debug/v8_snapshot.lib
 
 #
-build-shared:                               \
-	$(BUILDDIR)/release/icudt.dll           \
-	$(BUILDDIR)/release/icui18n.dll         \
-	$(BUILDDIR)/release/icuuc.dll           \
-	$(BUILDDIR)/release/v8.dll              \
-	$(BUILDDIR)/release/icui18n.lib         \
-	$(BUILDDIR)/release/icuuc.lib           \
-	$(BUILDDIR)/release/v8.lib              \
-	$(BUILDDIR)/release/v8_base.lib         \
-	$(BUILDDIR)/release/v8_libbase.lib      \
-	$(BUILDDIR)/release/v8_libplatform.lib  \
-	$(BUILDDIR)/release/v8_nosnapshot.lib   \
-	$(BUILDDIR)/release/v8_snapshot.lib     \
-	$(BUILDDIR)/debug/icudt.dll             \
-	$(BUILDDIR)/debug/icui18n.dll           \
-	$(BUILDDIR)/debug/icuuc.dll             \
-	$(BUILDDIR)/debug/v8.dll                \
-	$(BUILDDIR)/debug/icui18n.lib           \
-	$(BUILDDIR)/debug/icuuc.lib             \
-	$(BUILDDIR)/debug/v8.lib                \
-	$(BUILDDIR)/debug/v8_base.lib           \
-	$(BUILDDIR)/debug/v8_libbase.lib        \
-	$(BUILDDIR)/debug/v8_libplatform.lib    \
-	$(BUILDDIR)/debug/v8_nosnapshot.lib     \
-	$(BUILDDIR)/debug/v8_snapshot.lib       \
+build-shared:                                  \
+	$(PLATFORMDIR)/release/icudt.dll           \
+	$(PLATFORMDIR)/release/icui18n.dll         \
+	$(PLATFORMDIR)/release/icuuc.dll           \
+	$(PLATFORMDIR)/release/v8.dll              \
+	$(PLATFORMDIR)/release/icui18n.lib         \
+	$(PLATFORMDIR)/release/icuuc.lib           \
+	$(PLATFORMDIR)/release/v8.lib              \
+	$(PLATFORMDIR)/release/v8_base.lib         \
+	$(PLATFORMDIR)/release/v8_libbase.lib      \
+	$(PLATFORMDIR)/release/v8_libplatform.lib  \
+	$(PLATFORMDIR)/release/v8_nosnapshot.lib   \
+	$(PLATFORMDIR)/release/v8_snapshot.lib     \
+	$(PLATFORMDIR)/debug/icudt.dll             \
+	$(PLATFORMDIR)/debug/icui18n.dll           \
+	$(PLATFORMDIR)/debug/icuuc.dll             \
+	$(PLATFORMDIR)/debug/v8.dll                \
+	$(PLATFORMDIR)/debug/icui18n.lib           \
+	$(PLATFORMDIR)/debug/icuuc.lib             \
+	$(PLATFORMDIR)/debug/v8.lib                \
+	$(PLATFORMDIR)/debug/v8_base.lib           \
+	$(PLATFORMDIR)/debug/v8_libbase.lib        \
+	$(PLATFORMDIR)/debug/v8_libplatform.lib    \
+	$(PLATFORMDIR)/debug/v8_nosnapshot.lib     \
+	$(PLATFORMDIR)/debug/v8_snapshot.lib       \
 
 #
 deps-repo:
@@ -133,26 +134,26 @@ build-libs:
 	cd $(V8REPO) && $(MSBUILD) /t:Build /p:Configuration=Release build/all.sln
 
 #
-$(BUILDDIR)/release/%.dll: $(V8REPO)/build/Release/%.dll
-	mkdir -p $(BUILDDIR)/release
+$(PLATFORMDIR)/release/%.dll: $(V8REPO)/build/Release/%.dll
+	mkdir -p $(PLATFORMDIR)/release
 	cp $^ $@
 
 #
-$(BUILDDIR)/release/%.lib: $(V8REPO)/build/Release/lib/%.lib
-	mkdir -p $(BUILDDIR)/release
+$(PLATFORMDIR)/release/%.lib: $(V8REPO)/build/Release/lib/%.lib
+	mkdir -p $(PLATFORMDIR)/release
 	cp $^ $@
 
 #
-$(BUILDDIR)/debug/%.dll: $(V8REPO)/build/Debug/%.dll
-	mkdir -p $(BUILDDIR)/debug
+$(PLATFORMDIR)/debug/%.dll: $(V8REPO)/build/Debug/%.dll
+	mkdir -p $(PLATFORMDIR)/debug
 	cp $^ $@
 
 #
-$(BUILDDIR)/debug/%.lib: $(V8REPO)/build/Debug/lib/%.lib
-	mkdir -p $(BUILDDIR)/debug
+$(PLATFORMDIR)/debug/%.lib: $(V8REPO)/build/Debug/lib/%.lib
+	mkdir -p $(PLATFORMDIR)/debug
 	cp $^ $@
 
 #
 clean-libs:
-	cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Debug build/all.sln
-	cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Release build/all.sln
+	! test -d $(V8REPO) || (cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Debug build/all.sln)
+	! test -d $(V8REPO) || (cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Release build/all.sln)

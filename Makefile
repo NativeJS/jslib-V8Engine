@@ -107,7 +107,7 @@ help:
 
 define helpBuild
   build           Build V8 Engine library files [defaults: ARCH=x64 LTYPE=static]
-  build-all       Build V8 Engine library shared and static files for all archs
+  build-all       Build V8 Engine shared and static library files for all architectures
   compress        Compress build into split files
   decompress      Decompress build archive
 endef
@@ -173,10 +173,10 @@ export helpTest
 
 #
 test-helloworld:
-	$(MAKE) -C ./test/helloworld/static build
 	$(MAKE) -C ./test/helloworld/shared build
-	$(MAKE) -C ./test/helloworld/static run
+	$(MAKE) -C ./test/helloworld/static build
 	$(MAKE) -C ./test/helloworld/shared run
+	$(MAKE) -C ./test/helloworld/static run
 
 
 
@@ -185,7 +185,7 @@ test-helloworld:
 ##
 
 #
-.PHONY: clean clean-deps clean-all
+.PHONY: clean clean-tests clean-deps clean-all
 
 define helpClean
   clean           Clean up build files and headers
@@ -199,8 +199,13 @@ clean:
 	rm -rf $(BUILDDIR)/$(PLATFORM).*
 
 #
+clean-tests:
+	$(MAKE) -C ./test/helloworld/shared clean
+	$(MAKE) -C ./test/helloworld/static clean
+
+#
 clean-deps:
 	rm -rf $(DEPSDIR)/*
 
 #
-clean-all: clean clean-deps
+clean-all: clean clean-tests clean-deps
