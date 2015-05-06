@@ -22,8 +22,9 @@ endef
 #
 ARCH ?= x64
 LTYPE ?= static
+PLAFTORM = Windows
 BUILDDIR = ./build
-PLATFORMDIR = $(BUILDDIR)/Windows.$(ARCH).$(LTYPE)
+PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
 DEPSDIR = ./deps
 V8REPO = $(DEPSDIR)/v8
 
@@ -63,14 +64,14 @@ build: deps-repo copy-headers build-libs build-$(LTYPE)
 
 #
 build-all:
-	test -d $(BUILDDIR)/Windows.ia32.shared || $(MAKE) -f Makefile.Windows clean-libs
-	test -d $(BUILDDIR)/Windows.ia32.shared || $(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=shared
-	test -d $(BUILDDIR)/Windows.ia32.static || $(MAKE) -f Makefile.Windows clean-libs
-	test -d $(BUILDDIR)/Windows.ia32.static || $(MAKE) -f Makefile.Windows build ARCH=ia32 LTYPE=static
-	test -d $(BUILDDIR)/Windows.x64.shared || $(MAKE) -f Makefile.Windows clean-libs
-	test -d $(BUILDDIR)/Windows.x64.shared || $(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=shared
-	test -d $(BUILDDIR)/Windows.x64.static || $(MAKE) -f Makefile.Windows clean-libs
-	test -d $(BUILDDIR)/Windows.x64.static || $(MAKE) -f Makefile.Windows build ARCH=x64 LTYPE=static
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
 
 #
 build-static:                                  \
