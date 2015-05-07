@@ -1,9 +1,10 @@
 ##
 # V8Engine MacOSX makefile
-# description     : Mac OSX dependency installer for V8Engine
+# description     : MacOSX library builder for V8Engine
 # author          : Almir Kadric
 # created on      : 2014-10-29
 ##
+
 
 
 ##
@@ -19,9 +20,14 @@ define gitClone
 endef
 
 #
-BUILDDIR = ./build/MacOSX
+ARCH ?= x64
+LTYPE ?= static
+PLAFTORM = MacOSX
+BUILDDIR = ./build
+PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
 DEPSDIR = ./deps
 V8REPO = $(DEPSDIR)/v8
+
 
 
 ##
@@ -44,37 +50,106 @@ clean-all:
 	@$(MAKE) clean-all
 
 
+
 ###
 # V8 Engine Library Targets
 ###
-.PHONY: build deps deps-repo
+.PHONY: build deps-repo copy-headers build-libs
 
-# Target to build V8 library
-build: deps build-headers		\
-	$(BUILDDIR)/icudata.a		\
-	$(BUILDDIR)/icui18n.a		\
-	$(BUILDDIR)/icuuc.a			\
-	$(BUILDDIR)/v8_base.a		\
-	$(BUILDDIR)/v8_libbase.a	\
-	$(BUILDDIR)/v8_nosnapshot.a
+# Build V8 library with current architecture and library type settings
+build: deps-repo copy-headers build-libs build-$(LTYPE)
 
 #
-build-headers:
-	$(MAKE) build-headers
+build-all:
+	# NOTE: shared ia32.debug build is currently broken on MacOSX
+	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
+
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
+
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
+
+#
+build-static:                                     \
+	$(PLATFORMDIR)/release/libicudata.a           \
+	$(PLATFORMDIR)/release/libicui18n.a           \
+	$(PLATFORMDIR)/release/libicuuc.a             \
+	$(PLATFORMDIR)/release/libv8_base.a           \
+	$(PLATFORMDIR)/release/libv8_libbase.a        \
+	$(PLATFORMDIR)/release/libv8_libplatform.a    \
+	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR)/release/libv8_snapshot.a       \
+	$(PLATFORMDIR)/debug/libicudata.a             \
+	$(PLATFORMDIR)/debug/libicui18n.a             \
+	$(PLATFORMDIR)/debug/libicuuc.a               \
+	$(PLATFORMDIR)/debug/libv8_base.a             \
+	$(PLATFORMDIR)/debug/libv8_libbase.a          \
+	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
+	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR)/debug/libv8_snapshot.a
+
+#
+build-shared:                                     \
+	$(PLATFORMDIR)/release/libicudata.a           \
+	$(PLATFORMDIR)/release/libicui18n.dylib       \
+	$(PLATFORMDIR)/release/libicuuc.dylib         \
+	$(PLATFORMDIR)/release/libv8.dylib            \
+	$(PLATFORMDIR)/release/libv8_base.a           \
+	$(PLATFORMDIR)/release/libv8_libbase.a        \
+	$(PLATFORMDIR)/release/libv8_libplatform.a    \
+	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR)/release/libv8_snapshot.a       \
+	$(PLATFORMDIR)/debug/libicudata.a             \
+	$(PLATFORMDIR)/debug/libicui18n.dylib         \
+	$(PLATFORMDIR)/debug/libicuuc.dylib           \
+	$(PLATFORMDIR)/debug/libv8.dylib              \
+	$(PLATFORMDIR)/debug/libv8_base.a             \
+	$(PLATFORMDIR)/debug/libv8_libbase.a          \
+	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
+	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR)/debug/libv8_snapshot.a
 
 #
 deps-repo:
 	$(MAKE) deps-repo
 
 #
-deps: deps-repo
-	# Setup V8 Engine build dependencies
-	$(MAKE) -C $(V8REPO) builddeps
-
-	# Configure & Build V8 Engine libraries
-	$(MAKE) -C $(V8REPO) x64.release component=static_library
+copy-headers:
+	$(MAKE) copy-headers
 
 #
-$(BUILDDIR)/%.a: $(V8REPO)/out/x64.release/lib%.a
-	mkdir -p $(BUILDDIR)
+build-libs:
+	# Configure & Build V8 Engine libraries using g++ makefiles
+	# NOTE: DYLD_LIBRARY_PATH is essential when making shared libraries for v8 tools like mksnapshot so that it may find
+	# the newly built libraries. Without it we would have to have the shared libraries installed into /usr/local/
+	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).debug && $(MAKE) -C $(V8REPO) $(ARCH).debug -j8 component=$(LTYPE)_library
+	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).release && $(MAKE) -C $(V8REPO) $(ARCH).release -j8 component=$(LTYPE)_library
+
+#
+$(PLATFORMDIR)/release/%.dylib: $(V8REPO)/out/$(ARCH).release/%.dylib
+	mkdir -p $(PLATFORMDIR)/release
 	cp $^ $@
+
+#
+$(PLATFORMDIR)/release/%.a: $(V8REPO)/out/$(ARCH).release/%.a
+	mkdir -p $(PLATFORMDIR)/release
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/debug/%.dylib: $(V8REPO)/out/$(ARCH).debug/%.dylib
+	mkdir -p $(PLATFORMDIR)/debug
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/debug/%.a: $(V8REPO)/out/$(ARCH).debug/%.a
+	mkdir -p $(PLATFORMDIR)/debug
+	cp $^ $@
+
+#
+clean-libs:
+	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean)

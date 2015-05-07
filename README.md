@@ -30,10 +30,16 @@ Platforms
 ---------
 The following platforms are supported by this project and will be present within their respective build folder:
  * Android (arm)
- * IOS (arm)
  * Linux (64bit)
- * MacOSX (64bit)
+ * MacOSX (ia32 static, x64 shared, x64 static)
  * Windows (ia32 shared, ia32 static, x64 shared, x64 static)
+
+NOTES:
+ * Unless jail-broken, IOS does not allow the creation of executable memory pages, on which V8 heavily relies. As such
+   the V8 team does not directly support IOS and as a result we will not support IOS for the time being.
+ * Similar to IOS, WindowsPhone does not allow the creation of executable memory pages so same result as above.
+ * ia32 shared debug build is currently broken for MacOSX on all versions. Since we need both release debug and release
+   ia32 shared build is ignored till this is fixed by the v8 team.
 
 Licenses
 --------

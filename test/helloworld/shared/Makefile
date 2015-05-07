@@ -33,6 +33,10 @@ endif
 
 #
 MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
+CXX11 = g++ -std=c++11 -stdlib=libstdc++
+INCLUDEDIR = ../../../include
+BUILDDIR = ../../../build
+V8LIBS = -licui18n -licuuc -lv8
 
 
 
@@ -47,6 +51,13 @@ MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
 build: build-$(PLATFORM)
 
 #
+build-MacOSX:
+	#$(CXX11) -m62 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared/debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared/debug/*.a ../helloworld.cpp -o helloworld.ia32.debug
+	#$(CXX11) -m32 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared/release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared/release/*.a ../helloworld.cpp -o helloworld.ia32.release
+	$(CXX11) -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared/debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared/debug/*.a ../helloworld.cpp -o helloworld.x64.debug
+	$(CXX11) -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared/release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared/release/*.a ../helloworld.cpp -o helloworld.x64.release
+
+#
 build-Windows:
 	$(MSBUILD) /t:Build /p:Configuration=Debug /p:Platform=x64 helloworld.sln
 	$(MSBUILD) /t:Build /p:Configuration=Debug /p:Platform=Win32 helloworld.sln
@@ -57,6 +68,13 @@ build-Windows:
 run: run-$(PLATFORM)
 
 #
+run-MacOSX:
+	#DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared/debug ./helloworld.ia32.debug
+	#DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared/release ./helloworld.ia32.release
+	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared/debug ./helloworld.x64.debug
+	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared/release ./helloworld.x64.release
+
+#
 run-Windows:
 	./x64/Debug/helloworld.exe
 	./x64/Release/helloworld.exe
@@ -65,6 +83,9 @@ run-Windows:
 
 #
 clean: clean-$(PLATFORM)
+
+#
+clean-MacOSX:
 
 #
 clean-Windows:
