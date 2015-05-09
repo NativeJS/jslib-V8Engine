@@ -43,7 +43,7 @@ else
 endif
 
 # Make sure ANDROID_NDK_ROOT environment variable or argument exists
-ANDROID_NDK_ROOT ?= /Applications/android-ndk-r10d
+ANDROID_NDK_ROOT ?= $(shell ls -d /opt/android-ndk-r10d || ls -d /Applications/android-ndk-r10d)
 ifndef ANDROID_NDK_ROOT
     $(error MUST SPECIFY ANDROID_NDK_ROOT path)
 endif
@@ -190,4 +190,4 @@ $(PLATFORMDIR)/debug/%.a: $(V8REPO)/out/android_$(ARCH).debug/obj.target/tools/g
 
 #
 clean-libs:
-	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean)
+	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean) || true

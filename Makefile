@@ -145,7 +145,7 @@ copy-headers:
 	# include folder is in, which should not be the case.
 	# Check: https://code.google.com/p/v8/issues/detail?id=4068&can=1&q=include%2Fv8-platform.h&colspec=ID%20Type%20Status%20Priority%20Owner%20Summary%20HW%20OS%20Area%20Stars
 	# Check: https://code.google.com/p/v8/issues/detail?id=3654&can=1&q=include%2Fv8-platform.h&colspec=ID%20Type%20Status%20Priority%20Owner%20Summary%20HW%20OS%20Area%20Stars
-	sed -e 's/#include "include\/v8-platform.h"/#include "..\/v8-platform.h"/' -i '.backup' ./include/libplatform/libplatform.h
+	sed -e 's/#include "include\/v8-platform.h"/#include "..\/v8-platform.h"/' -i'.backup' ./include/libplatform/libplatform.h
 
 #
 deps:
