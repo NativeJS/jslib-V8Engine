@@ -29,8 +29,8 @@ make decompress
 Platforms
 ---------
 The following platforms are supported by this project and will be present within their respective build folder:
- * Android (arm)
- * Linux (64bit)
+ * Android (ia32 shared, ia32 static, arm shared, arm static, arm64 shared, arm64 static)
+ * Linux ()
  * MacOSX (ia32 static, x64 shared, x64 static)
  * Windows (ia32 shared, ia32 static, x64 shared, x64 static)
 

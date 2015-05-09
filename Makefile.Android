@@ -1,0 +1,193 @@
+##
+# V8Engine Android makefile
+# description     : Android library builder for V8Engine
+# author          : Almir Kadric
+# created on      : 2014-10-29
+##
+
+
+
+##
+# Global variables
+##
+
+# Set default shell
+SHELL = /bin/bash
+
+# Function to check if a git url has already been cloned, if not it will clone it
+define gitClone
+	test -d $2 || git clone $1 $2
+endef
+
+#
+ARCH ?= arm
+LTYPE ?= static
+PLAFTORM = Android
+BUILDDIR = ./build
+PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
+DEPSDIR = ./deps
+V8REPO = $(DEPSDIR)/v8
+
+# Determine the host platform
+ifeq ($(OS),Windows_NT)
+    HOSTPLATFORM=Windows
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        HOSTPLATFORM=Linux
+    else ifeq ($(UNAME_S),Darwin)
+        HOSTPLATFORM=MacOSX
+    else
+        $(error Unknown/Unsupported Host Platform "$(OS)")
+    endif
+endif
+
+# Make sure ANDROID_NDK_ROOT environment variable or argument exists
+ANDROID_NDK_ROOT ?= /Applications/android-ndk-r10d
+ifndef ANDROID_NDK_ROOT
+    $(error MUST SPECIFY ANDROID_NDK_ROOT path)
+endif
+
+
+
+##
+# Make Targets
+##
+
+# List of target which should be run every time without caching
+.PHONY: help clean clean-deps clean-all
+
+# Default make target
+%:: help
+Default: help
+help:
+	@$(MAKE) -s
+clean:
+	@$(MAKE) clean
+clean-deps:
+	@$(MAKE) clean-deps
+clean-all:
+	@$(MAKE) clean-all
+
+
+
+###
+# V8 Engine Library Targets
+###
+.PHONY: build deps-repo copy-headers build-libs
+
+# Build V8 library with current architecture and library type settings
+build: deps-repo copy-headers build-libs build-$(LTYPE)
+
+#
+build-all:
+    ifneq ($(HOSTPLATFORM),MacOSX)
+		#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+		#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+
+		#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+		#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=shared
+
+		#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+		#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=shared
+    else
+		# Note: https://code.google.com/p/v8/issues/detail?id=3478
+		@echo "V8 does not support the building of shared libraries on MacOSX"
+    endif
+
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
+
+	test -d $(BUILDDIR)/$(PLAFTORM).arm.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).arm.static || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=static
+
+	test -d $(BUILDDIR)/$(PLAFTORM).arm64.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	test -d $(BUILDDIR)/$(PLAFTORM).arm64.static || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=static
+
+#
+build-static:                                     \
+	$(PLATFORMDIR)/release/libicudata.a           \
+	$(PLATFORMDIR)/release/libicui18n.a           \
+	$(PLATFORMDIR)/release/libicuuc.a             \
+	$(PLATFORMDIR)/release/libv8_base.a           \
+	$(PLATFORMDIR)/release/libv8_libbase.a        \
+	$(PLATFORMDIR)/release/libv8_libplatform.a    \
+	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR)/release/libv8_snapshot.a       \
+	$(PLATFORMDIR)/debug/libicudata.a             \
+	$(PLATFORMDIR)/debug/libicui18n.a             \
+	$(PLATFORMDIR)/debug/libicuuc.a               \
+	$(PLATFORMDIR)/debug/libv8_base.a             \
+	$(PLATFORMDIR)/debug/libv8_libbase.a          \
+	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
+	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR)/debug/libv8_snapshot.a
+
+#
+build-shared:                                     \
+	$(PLATFORMDIR)/release/libicudata.a           \
+	$(PLATFORMDIR)/release/libicui18n.dylib       \
+	$(PLATFORMDIR)/release/libicuuc.dylib         \
+	$(PLATFORMDIR)/release/libv8.dylib            \
+	$(PLATFORMDIR)/release/libv8_base.a           \
+	$(PLATFORMDIR)/release/libv8_libbase.a        \
+	$(PLATFORMDIR)/release/libv8_libplatform.a    \
+	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR)/release/libv8_snapshot.a       \
+	$(PLATFORMDIR)/debug/libicudata.a             \
+	$(PLATFORMDIR)/debug/libicui18n.dylib         \
+	$(PLATFORMDIR)/debug/libicuuc.dylib           \
+	$(PLATFORMDIR)/debug/libv8.dylib              \
+	$(PLATFORMDIR)/debug/libv8_base.a             \
+	$(PLATFORMDIR)/debug/libv8_libbase.a          \
+	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
+	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR)/debug/libv8_snapshot.a
+
+#
+deps-repo:
+	$(MAKE) deps-repo
+
+#
+copy-headers:
+	$(MAKE) copy-headers
+
+#
+build-libs:
+	# Configure & Build V8 Engine libraries using g++ makefiles
+	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -C $(V8REPO) android_$(ARCH).debug -j8 component=$(LTYPE)_library
+	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -C $(V8REPO) android_$(ARCH).release -j8 component=$(LTYPE)_library
+
+#
+$(PLATFORMDIR)/release/%.dylib: $(V8REPO)/out/$(ARCH).release/%.dylib
+	mkdir -p $(PLATFORMDIR)/release
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/release/%.a: $(V8REPO)/out/android_$(ARCH).release/obj.target/third_party/icu/%.a
+	mkdir -p $(PLATFORMDIR)/release
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/release/%.a: $(V8REPO)/out/android_$(ARCH).release/obj.target/tools/gyp/%.a
+	mkdir -p $(PLATFORMDIR)/release
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/debug/%.dylib: $(V8REPO)/out/$(ARCH).debug/%.dylib
+	mkdir -p $(PLATFORMDIR)/debug
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/debug/%.a: $(V8REPO)/out/android_$(ARCH).debug/obj.target/third_party/icu/%.a
+	mkdir -p $(PLATFORMDIR)/debug
+	cp $^ $@
+
+#
+$(PLATFORMDIR)/debug/%.a: $(V8REPO)/out/android_$(ARCH).debug/obj.target/tools/gyp/%.a
+	mkdir -p $(PLATFORMDIR)/debug
+	cp $^ $@
+
+#
+clean-libs:
+	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean)
