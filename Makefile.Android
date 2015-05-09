@@ -81,19 +81,22 @@ build: deps-repo copy-headers build-libs build-$(LTYPE)
 
 #
 build-all:
-    ifneq ($(HOSTPLATFORM),MacOSX)
-		#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-		#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
-
-		#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-		#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=shared
-
-		#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-		#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=shared
-    else
-		# Note: https://code.google.com/p/v8/issues/detail?id=3478
-		@echo "V8 does not support the building of shared libraries on MacOSX"
+    #
+    ifeq ($(HOSTPLATFORM),MacOSX)
+        # Note: https://code.google.com/p/v8/issues/detail?id=3478
+        $(error V8 does not support the building of shared libraries on MacOSX)
+    else ifeq ($(HOSTPLATFORM),Windows)
+        $(error Windows host platform is not supported)
     endif
+
+	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+
+	#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	#test -d $(BUILDDIR)/$(PLAFTORM).arm.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=shared
+
+	#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	#test -d $(BUILDDIR)/$(PLAFTORM).arm64.shared || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=shared
 
 	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
 	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
