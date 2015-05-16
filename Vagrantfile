@@ -51,6 +51,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 		# Enable SSH agent forwarding
 		linux.ssh.forward_agent = true
+
+		# When prvisioning, make sure dependencies are installed
+		linux.vm.provision "shell", path: "./sbin/Linux/install_dependencies.sh"
 	end
 
 	#
