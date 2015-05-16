@@ -1,8 +1,10 @@
 /.gitattributes
-/.idea
+/.idea/
+/.vagrant/
 /build/*/*.a
 /build/*/*.lib
 /build/*/*.so
+/build/*/*.dylib
 /build/*/*.dll
 /deps/
 /test/helloworld/*/helloworld.opensdf

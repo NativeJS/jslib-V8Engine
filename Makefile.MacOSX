@@ -22,6 +22,7 @@ endef
 #
 ARCH ?= x64
 LTYPE ?= static
+JOBS ?= 2
 PLAFTORM = MacOSX
 BUILDDIR = ./build
 PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
@@ -57,62 +58,67 @@ clean-all:
 .PHONY: build deps-repo copy-headers build-libs
 
 # Build V8 library with current architecture and library type settings
-build: deps-repo copy-headers build-libs build-$(LTYPE)
+build: deps-repo build-libs copy-headers build-folders build-$(LTYPE)
 
 #
 build-all:
 	# NOTE: shared ia32.debug build is currently broken on MacOSX
-	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	#test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+	#ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	#ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
 
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
 
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
 
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
+
+#
+build-folders:
+	mkdir -p $(PLATFORMDIR).release
+	mkdir -p $(PLATFORMDIR).debug
 
 #
 build-static:                                     \
-	$(PLATFORMDIR)/release/libicudata.a           \
-	$(PLATFORMDIR)/release/libicui18n.a           \
-	$(PLATFORMDIR)/release/libicuuc.a             \
-	$(PLATFORMDIR)/release/libv8_base.a           \
-	$(PLATFORMDIR)/release/libv8_libbase.a        \
-	$(PLATFORMDIR)/release/libv8_libplatform.a    \
-	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
-	$(PLATFORMDIR)/release/libv8_snapshot.a       \
-	$(PLATFORMDIR)/debug/libicudata.a             \
-	$(PLATFORMDIR)/debug/libicui18n.a             \
-	$(PLATFORMDIR)/debug/libicuuc.a               \
-	$(PLATFORMDIR)/debug/libv8_base.a             \
-	$(PLATFORMDIR)/debug/libv8_libbase.a          \
-	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
-	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
-	$(PLATFORMDIR)/debug/libv8_snapshot.a
+	$(PLATFORMDIR).release/libicudata.a           \
+	$(PLATFORMDIR).release/libicui18n.a           \
+	$(PLATFORMDIR).release/libicuuc.a             \
+	$(PLATFORMDIR).release/libv8_base.a           \
+	$(PLATFORMDIR).release/libv8_libbase.a        \
+	$(PLATFORMDIR).release/libv8_libplatform.a    \
+	$(PLATFORMDIR).release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR).release/libv8_snapshot.a       \
+	$(PLATFORMDIR).debug/libicudata.a             \
+	$(PLATFORMDIR).debug/libicui18n.a             \
+	$(PLATFORMDIR).debug/libicuuc.a               \
+	$(PLATFORMDIR).debug/libv8_base.a             \
+	$(PLATFORMDIR).debug/libv8_libbase.a          \
+	$(PLATFORMDIR).debug/libv8_libplatform.a      \
+	$(PLATFORMDIR).debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR).debug/libv8_snapshot.a
 
 #
 build-shared:                                     \
-	$(PLATFORMDIR)/release/libicudata.a           \
-	$(PLATFORMDIR)/release/libicui18n.dylib       \
-	$(PLATFORMDIR)/release/libicuuc.dylib         \
-	$(PLATFORMDIR)/release/libv8.dylib            \
-	$(PLATFORMDIR)/release/libv8_base.a           \
-	$(PLATFORMDIR)/release/libv8_libbase.a        \
-	$(PLATFORMDIR)/release/libv8_libplatform.a    \
-	$(PLATFORMDIR)/release/libv8_nosnapshot.a     \
-	$(PLATFORMDIR)/release/libv8_snapshot.a       \
-	$(PLATFORMDIR)/debug/libicudata.a             \
-	$(PLATFORMDIR)/debug/libicui18n.dylib         \
-	$(PLATFORMDIR)/debug/libicuuc.dylib           \
-	$(PLATFORMDIR)/debug/libv8.dylib              \
-	$(PLATFORMDIR)/debug/libv8_base.a             \
-	$(PLATFORMDIR)/debug/libv8_libbase.a          \
-	$(PLATFORMDIR)/debug/libv8_libplatform.a      \
-	$(PLATFORMDIR)/debug/libv8_nosnapshot.a       \
-	$(PLATFORMDIR)/debug/libv8_snapshot.a
+	$(PLATFORMDIR).release/libicudata.a           \
+	$(PLATFORMDIR).release/libicui18n.dylib       \
+	$(PLATFORMDIR).release/libicuuc.dylib         \
+	$(PLATFORMDIR).release/libv8.dylib            \
+	$(PLATFORMDIR).release/libv8_base.a           \
+	$(PLATFORMDIR).release/libv8_libbase.a        \
+	$(PLATFORMDIR).release/libv8_libplatform.a    \
+	$(PLATFORMDIR).release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR).release/libv8_snapshot.a       \
+	$(PLATFORMDIR).debug/libicudata.a             \
+	$(PLATFORMDIR).debug/libicui18n.dylib         \
+	$(PLATFORMDIR).debug/libicuuc.dylib           \
+	$(PLATFORMDIR).debug/libv8.dylib              \
+	$(PLATFORMDIR).debug/libv8_base.a             \
+	$(PLATFORMDIR).debug/libv8_libbase.a          \
+	$(PLATFORMDIR).debug/libv8_libplatform.a      \
+	$(PLATFORMDIR).debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR).debug/libv8_snapshot.a
 
 #
 deps-repo:
@@ -127,29 +133,56 @@ build-libs:
 	# Configure & Build V8 Engine libraries using g++ makefiles
 	# NOTE: DYLD_LIBRARY_PATH is essential when making shared libraries for v8 tools like mksnapshot so that it may find
 	# the newly built libraries. Without it we would have to have the shared libraries installed into /usr/local/
-	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).debug && $(MAKE) -C $(V8REPO) $(ARCH).debug -j8 component=$(LTYPE)_library
-	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).release && $(MAKE) -C $(V8REPO) $(ARCH).release -j8 component=$(LTYPE)_library
-
-#
-$(PLATFORMDIR)/release/%.dylib: $(V8REPO)/out/$(ARCH).release/%.dylib
-	mkdir -p $(PLATFORMDIR)/release
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/release/%.a: $(V8REPO)/out/$(ARCH).release/%.a
-	mkdir -p $(PLATFORMDIR)/release
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/debug/%.dylib: $(V8REPO)/out/$(ARCH).debug/%.dylib
-	mkdir -p $(PLATFORMDIR)/debug
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/debug/%.a: $(V8REPO)/out/$(ARCH).debug/%.a
-	mkdir -p $(PLATFORMDIR)/debug
-	cp $^ $@
+	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).debug && $(MAKE) -C $(V8REPO) $(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
+	export DYLD_LIBRARY_PATH=$$(pwd)/deps/v8/out/$(ARCH).release && $(MAKE) -C $(V8REPO) $(ARCH).release -j$(JOBS) component=$(LTYPE)_library
 
 #
 clean-libs:
-	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean)
+	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean) || true
+
+# All compiled library targets
+# NOTE: we list them individually as we have found that wildcard targets can fail
+$(PLATFORMDIR).release/libicudata.a: $(V8REPO)/out/$(ARCH).release/libicudata.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicui18n.a: $(V8REPO)/out/$(ARCH).release/libicui18n.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicuuc.a: $(V8REPO)/out/$(ARCH).release/libicuuc.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicui18n.dylib: $(V8REPO)/out/$(ARCH).release/libicui18n.dylib
+	cp $^ $@
+$(PLATFORMDIR).release/libicuuc.dylib: $(V8REPO)/out/$(ARCH).release/libicuuc.dylib
+	cp $^ $@
+$(PLATFORMDIR).release/libv8.dylib: $(V8REPO)/out/$(ARCH).release/libv8.dylib
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_base.a: $(V8REPO)/out/$(ARCH).release/libv8_base.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_libbase.a: $(V8REPO)/out/$(ARCH).release/libv8_libbase.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_libplatform.a: $(V8REPO)/out/$(ARCH).release/libv8_libplatform.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_nosnapshot.a: $(V8REPO)/out/$(ARCH).release/libv8_nosnapshot.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_snapshot.a: $(V8REPO)/out/$(ARCH).release/libv8_snapshot.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicudata.a: $(V8REPO)/out/$(ARCH).debug/libicudata.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicui18n.a: $(V8REPO)/out/$(ARCH).debug/libicui18n.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicuuc.a: $(V8REPO)/out/$(ARCH).debug/libicuuc.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicui18n.dylib: $(V8REPO)/out/$(ARCH).debug/libicui18n.dylib
+	cp $^ $@
+$(PLATFORMDIR).debug/libicuuc.dylib: $(V8REPO)/out/$(ARCH).debug/libicuuc.dylib
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8.dylib: $(V8REPO)/out/$(ARCH).debug/libv8.dylib
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_base.a: $(V8REPO)/out/$(ARCH).debug/libv8_base.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_libbase.a: $(V8REPO)/out/$(ARCH).debug/libv8_libbase.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_libplatform.a: $(V8REPO)/out/$(ARCH).debug/libv8_libplatform.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_nosnapshot.a: $(V8REPO)/out/$(ARCH).debug/libv8_nosnapshot.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_snapshot.a: $(V8REPO)/out/$(ARCH).debug/libv8_snapshot.a
+	cp $^ $@

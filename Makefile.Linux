@@ -1,0 +1,197 @@
+##
+# V8Engine Linux makefile
+# description     : Linux library builder for V8Engine
+# author          : Almir Kadric
+# created on      : 2014-10-29
+##
+
+
+
+##
+# Global variables
+##
+
+# Set default shell
+SHELL = /bin/bash
+
+# Function to check if a git url has already been cloned, if not it will clone it
+define gitClone
+	test -d $2 || git clone $1 $2
+endef
+
+#
+ARCH ?= amd64
+LTYPE ?= static
+JOBS ?= 2
+PLAFTORM = Linux
+BUILDDIR = ./build
+PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
+DEPSDIR = ./deps
+V8REPO = $(DEPSDIR)/v8
+
+
+
+##
+# Make Targets
+##
+
+# List of target which should be run every time without caching
+.PHONY: help clean clean-deps clean-all
+
+# Default make target
+%:: help
+Default: help
+help:
+	@$(MAKE) -s
+clean:
+	@$(MAKE) clean
+clean-deps:
+	@$(MAKE) clean-deps
+clean-all:
+	@$(MAKE) clean-all
+
+
+
+###
+# V8 Engine Library Targets
+###
+.PHONY: build deps-repo copy-headers build-libs
+
+# Build V8 library with current architecture and library type settings
+build: deps-repo build-libs copy-headers build-folders build-$(LTYPE)
+
+#
+build-all:
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=shared JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=shared JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm LTYPE=static JOBS=$(JOBS)
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).arm64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=arm64 LTYPE=static JOBS=$(JOBS)
+
+#
+build-folders:
+	mkdir -p $(PLATFORMDIR).release
+	mkdir -p $(PLATFORMDIR).debug
+
+#
+build-static:                                     \
+	$(PLATFORMDIR).release/libicudata.a           \
+	$(PLATFORMDIR).release/libicui18n.a           \
+	$(PLATFORMDIR).release/libicuuc.a             \
+	$(PLATFORMDIR).release/libv8_base.a           \
+	$(PLATFORMDIR).release/libv8_libbase.a        \
+	$(PLATFORMDIR).release/libv8_libplatform.a    \
+	$(PLATFORMDIR).release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR).release/libv8_snapshot.a       \
+	$(PLATFORMDIR).debug/libicudata.a             \
+	$(PLATFORMDIR).debug/libicui18n.a             \
+	$(PLATFORMDIR).debug/libicuuc.a               \
+	$(PLATFORMDIR).debug/libv8_base.a             \
+	$(PLATFORMDIR).debug/libv8_libbase.a          \
+	$(PLATFORMDIR).debug/libv8_libplatform.a      \
+	$(PLATFORMDIR).debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR).debug/libv8_snapshot.a
+
+#
+build-shared:                                     \
+	$(PLATFORMDIR).release/libicudata.a           \
+	$(PLATFORMDIR).release/libicui18n.so          \
+	$(PLATFORMDIR).release/libicuuc.so            \
+	$(PLATFORMDIR).release/libv8.so               \
+	$(PLATFORMDIR).release/libv8_base.a           \
+	$(PLATFORMDIR).release/libv8_libbase.a        \
+	$(PLATFORMDIR).release/libv8_libplatform.a    \
+	$(PLATFORMDIR).release/libv8_nosnapshot.a     \
+	$(PLATFORMDIR).release/libv8_snapshot.a       \
+	$(PLATFORMDIR).debug/libicudata.a             \
+	$(PLATFORMDIR).debug/libicui18n.so            \
+	$(PLATFORMDIR).debug/libicuuc.so              \
+	$(PLATFORMDIR).debug/libv8.so                 \
+	$(PLATFORMDIR).debug/libv8_base.a             \
+	$(PLATFORMDIR).debug/libv8_libbase.a          \
+	$(PLATFORMDIR).debug/libv8_libplatform.a      \
+	$(PLATFORMDIR).debug/libv8_nosnapshot.a       \
+	$(PLATFORMDIR).debug/libv8_snapshot.a
+
+#
+deps-repo:
+	$(MAKE) deps-repo
+
+#
+copy-headers:
+	$(MAKE) copy-headers
+
+#
+build-libs:
+	# Configure & Build V8 Engine libraries using g++ makefiles
+	$(MAKE) -C $(V8REPO) $(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
+	$(MAKE) -C $(V8REPO) $(ARCH).release -j$(JOBS) component=$(LTYPE)_library
+
+#
+clean-libs:
+	! test -d $(V8REPO) || ($(MAKE) -C $(V8REPO) clean) || true
+
+# All compiled library targets
+# NOTE: we list them individually as we have found that wildcard targets can fail
+$(PLATFORMDIR).release/libicudata.a: $(V8REPO)/out/$(ARCH).release/obj.target/third_party/icu/libicudata.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicui18n.a: $(V8REPO)/out/$(ARCH).release/obj.target/third_party/icu/libicui18n.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicuuc.a: $(V8REPO)/out/$(ARCH).release/obj.target/third_party/icu/libicuuc.a
+	cp $^ $@
+$(PLATFORMDIR).release/libicui18n.so: $(V8REPO)/out/$(ARCH).release/obj.target/third_party/icu/libicui18n.so
+	cp $^ $@
+$(PLATFORMDIR).release/libicuuc.so: $(V8REPO)/out/$(ARCH).release/obj.target/third_party/icu/libicuuc.so
+	cp $^ $@
+$(PLATFORMDIR).release/libv8.so: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8.so
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_base.a: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8_base.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_libbase.a: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8_libbase.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_libplatform.a: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8_libplatform.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_nosnapshot.a: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8_nosnapshot.a
+	cp $^ $@
+$(PLATFORMDIR).release/libv8_snapshot.a: $(V8REPO)/out/$(ARCH).release/obj.target/tools/gyp/libv8_snapshot.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicudata.a: $(V8REPO)/out/$(ARCH).debug/obj.target/third_party/icu/libicudata.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicui18n.a: $(V8REPO)/out/$(ARCH).debug/obj.target/third_party/icu/libicui18n.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicuuc.a: $(V8REPO)/out/$(ARCH).debug/obj.target/third_party/icu/libicuuc.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libicui18n.so: $(V8REPO)/out/$(ARCH).debug/obj.target/third_party/icu/libicui18n.so
+	cp $^ $@
+$(PLATFORMDIR).debug/libicuuc.so: $(V8REPO)/out/$(ARCH).debug/obj.target/third_party/icu/libicuuc.so
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8.so: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8.so
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_base.a: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8_base.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_libbase.a: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8_libbase.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_libplatform.a: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8_libplatform.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_nosnapshot.a: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8_nosnapshot.a
+	cp $^ $@
+$(PLATFORMDIR).debug/libv8_snapshot.a: $(V8REPO)/out/$(ARCH).debug/obj.target/tools/gyp/libv8_snapshot.a
+	cp $^ $@

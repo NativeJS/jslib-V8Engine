@@ -63,64 +63,72 @@ clean-all:
 .PHONY: build deps-repo copy-headers build-libs
 
 # Build V8 library with current architecture and library type settings
-build: deps-repo copy-headers build-libs build-$(LTYPE)
+build: deps-repo build-libs copy-headers build-folders build-$(LTYPE)
 
 #
 build-all:
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).ia32.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.shared || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
-	test -d $(BUILDDIR)/$(PLAFTORM).x64.static || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=shared
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.shared.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=shared
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).ia32.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=ia32 LTYPE=static
+
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) clean-libs
+	ls -d $(BUILDDIR)/$(PLAFTORM).x64.static.* >/dev/null 2>&1 || $(MAKE) -f Makefile.$(PLAFTORM) build ARCH=x64 LTYPE=static
+
+#
+build-folders:
+	mkdir -p $(PLATFORMDIR).release
+	mkdir -p $(PLATFORMDIR).debug
 
 #
 build-static:                                  \
-	$(PLATFORMDIR)/release/icudt.dll           \
-	$(PLATFORMDIR)/release/icui18n.lib         \
-	$(PLATFORMDIR)/release/icuuc.lib           \
-	$(PLATFORMDIR)/release/v8_base.lib         \
-	$(PLATFORMDIR)/release/v8_libbase.lib      \
-	$(PLATFORMDIR)/release/v8_libplatform.lib  \
-	$(PLATFORMDIR)/release/v8_nosnapshot.lib   \
-	$(PLATFORMDIR)/release/v8_snapshot.lib     \
-	$(PLATFORMDIR)/debug/icudt.dll             \
-	$(PLATFORMDIR)/debug/icui18n.lib           \
-	$(PLATFORMDIR)/debug/icuuc.lib             \
-	$(PLATFORMDIR)/debug/v8_base.lib           \
-	$(PLATFORMDIR)/debug/v8_libbase.lib        \
-	$(PLATFORMDIR)/debug/v8_libplatform.lib    \
-	$(PLATFORMDIR)/debug/v8_nosnapshot.lib     \
-	$(PLATFORMDIR)/debug/v8_snapshot.lib
+	$(PLATFORMDIR).release/icudt.dll           \
+	$(PLATFORMDIR).release/icui18n.lib         \
+	$(PLATFORMDIR).release/icuuc.lib           \
+	$(PLATFORMDIR).release/v8_base.lib         \
+	$(PLATFORMDIR).release/v8_libbase.lib      \
+	$(PLATFORMDIR).release/v8_libplatform.lib  \
+	$(PLATFORMDIR).release/v8_nosnapshot.lib   \
+	$(PLATFORMDIR).release/v8_snapshot.lib     \
+	$(PLATFORMDIR).debug/icudt.dll             \
+	$(PLATFORMDIR).debug/icui18n.lib           \
+	$(PLATFORMDIR).debug/icuuc.lib             \
+	$(PLATFORMDIR).debug/v8_base.lib           \
+	$(PLATFORMDIR).debug/v8_libbase.lib        \
+	$(PLATFORMDIR).debug/v8_libplatform.lib    \
+	$(PLATFORMDIR).debug/v8_nosnapshot.lib     \
+	$(PLATFORMDIR).debug/v8_snapshot.lib
 
 #
 build-shared:                                  \
-	$(PLATFORMDIR)/release/icudt.dll           \
-	$(PLATFORMDIR)/release/icui18n.dll         \
-	$(PLATFORMDIR)/release/icuuc.dll           \
-	$(PLATFORMDIR)/release/v8.dll              \
-	$(PLATFORMDIR)/release/icui18n.lib         \
-	$(PLATFORMDIR)/release/icuuc.lib           \
-	$(PLATFORMDIR)/release/v8.lib              \
-	$(PLATFORMDIR)/release/v8_base.lib         \
-	$(PLATFORMDIR)/release/v8_libbase.lib      \
-	$(PLATFORMDIR)/release/v8_libplatform.lib  \
-	$(PLATFORMDIR)/release/v8_nosnapshot.lib   \
-	$(PLATFORMDIR)/release/v8_snapshot.lib     \
-	$(PLATFORMDIR)/debug/icudt.dll             \
-	$(PLATFORMDIR)/debug/icui18n.dll           \
-	$(PLATFORMDIR)/debug/icuuc.dll             \
-	$(PLATFORMDIR)/debug/v8.dll                \
-	$(PLATFORMDIR)/debug/icui18n.lib           \
-	$(PLATFORMDIR)/debug/icuuc.lib             \
-	$(PLATFORMDIR)/debug/v8.lib                \
-	$(PLATFORMDIR)/debug/v8_base.lib           \
-	$(PLATFORMDIR)/debug/v8_libbase.lib        \
-	$(PLATFORMDIR)/debug/v8_libplatform.lib    \
-	$(PLATFORMDIR)/debug/v8_nosnapshot.lib     \
-	$(PLATFORMDIR)/debug/v8_snapshot.lib       \
+	$(PLATFORMDIR).release/icudt.dll           \
+	$(PLATFORMDIR).release/icui18n.dll         \
+	$(PLATFORMDIR).release/icuuc.dll           \
+	$(PLATFORMDIR).release/v8.dll              \
+	$(PLATFORMDIR).release/icui18n.lib         \
+	$(PLATFORMDIR).release/icuuc.lib           \
+	$(PLATFORMDIR).release/v8.lib              \
+	$(PLATFORMDIR).release/v8_base.lib         \
+	$(PLATFORMDIR).release/v8_libbase.lib      \
+	$(PLATFORMDIR).release/v8_libplatform.lib  \
+	$(PLATFORMDIR).release/v8_nosnapshot.lib   \
+	$(PLATFORMDIR).release/v8_snapshot.lib     \
+	$(PLATFORMDIR).debug/icudt.dll             \
+	$(PLATFORMDIR).debug/icui18n.dll           \
+	$(PLATFORMDIR).debug/icuuc.dll             \
+	$(PLATFORMDIR).debug/v8.dll                \
+	$(PLATFORMDIR).debug/icui18n.lib           \
+	$(PLATFORMDIR).debug/icuuc.lib             \
+	$(PLATFORMDIR).debug/v8.lib                \
+	$(PLATFORMDIR).debug/v8_base.lib           \
+	$(PLATFORMDIR).debug/v8_libbase.lib        \
+	$(PLATFORMDIR).debug/v8_libplatform.lib    \
+	$(PLATFORMDIR).debug/v8_nosnapshot.lib     \
+	$(PLATFORMDIR).debug/v8_snapshot.lib       \
 
 #
 deps-repo:
@@ -137,27 +145,55 @@ build-libs:
 	cd $(V8REPO) && $(MSBUILD) /t:Build /p:Configuration=Debug build/all.sln
 	cd $(V8REPO) && $(MSBUILD) /t:Build /p:Configuration=Release build/all.sln
 
-#
-$(PLATFORMDIR)/release/%.dll: $(V8REPO)/build/Release/%.dll
-	mkdir -p $(PLATFORMDIR)/release
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/release/%.lib: $(V8REPO)/build/Release/lib/%.lib
-	mkdir -p $(PLATFORMDIR)/release
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/debug/%.dll: $(V8REPO)/build/Debug/%.dll
-	mkdir -p $(PLATFORMDIR)/debug
-	cp $^ $@
-
-#
-$(PLATFORMDIR)/debug/%.lib: $(V8REPO)/build/Debug/lib/%.lib
-	mkdir -p $(PLATFORMDIR)/debug
-	cp $^ $@
 
 #
 clean-libs:
 	! test -d $(V8REPO) || (cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Debug build/all.sln)
 	! test -d $(V8REPO) || (cd $(V8REPO) && $(MSBUILD) /t:Clean /p:Configuration=Release build/all.sln)
+
+# All compiled library targets
+# NOTE: we list them individually as we have found that wildcard targets can fail
+$(PLATFORMDIR).release/icudt.dll: $(V8REPO)/build/Release/icudt.dll
+	cp $^ $@
+$(PLATFORMDIR).release/icui18n.lib: $(V8REPO)/build/Release/lib/icui18n.lib
+	cp $^ $@
+$(PLATFORMDIR).release/icuuc.lib: $(V8REPO)/build/Release/lib/icuuc.lib
+	cp $^ $@
+$(PLATFORMDIR).release/icui18n.dll: $(V8REPO)/build/Release/icui18n.dll
+	cp $^ $@
+$(PLATFORMDIR).release/icuuc.dll: $(V8REPO)/build/Release/icuuc.dll
+	cp $^ $@
+$(PLATFORMDIR).release/v8.dll: $(V8REPO)/build/Release/v8.dll
+	cp $^ $@
+$(PLATFORMDIR).release/v8_base.lib: $(V8REPO)/build/Release/lib/v8_base.lib
+	cp $^ $@
+$(PLATFORMDIR).release/v8_libbase.lib: $(V8REPO)/build/Release/lib/v8_libbase.lib
+	cp $^ $@
+$(PLATFORMDIR).release/v8_libplatform.lib: $(V8REPO)/build/Release/lib/v8_libplatform.lib
+	cp $^ $@
+$(PLATFORMDIR).release/v8_nosnapshot.lib: $(V8REPO)/build/Release/lib/v8_nosnapshot.lib
+	cp $^ $@
+$(PLATFORMDIR).release/v8_snapshot.lib: $(V8REPO)/build/Release/lib/v8_snapshot.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/icudt.dll: $(V8REPO)/build/Debug/icudt.dll
+	cp $^ $@
+$(PLATFORMDIR).debug/icui18n.lib: $(V8REPO)/build/Debug/lib/icui18n.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/icuuc.lib: $(V8REPO)/build/Debug/lib/icuuc.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/icui18n.dll: $(V8REPO)/build/Debug/icui18n.dll
+	cp $^ $@
+$(PLATFORMDIR).debug/icuuc.dll: $(V8REPO)/build/Debug/icuuc.dll
+	cp $^ $@
+$(PLATFORMDIR).debug/v8.dll: $(V8REPO)/build/Debug/v8.dll
+	cp $^ $@
+$(PLATFORMDIR).debug/v8_base.lib: $(V8REPO)/build/Debug/lib/v8_base.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/v8_libbase.lib: $(V8REPO)/build/Debug/lib/v8_libbase.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/v8_libplatform.lib: $(V8REPO)/build/Debug/lib/v8_libplatform.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/v8_nosnapshot.lib: $(V8REPO)/build/Debug/lib/v8_nosnapshot.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/v8_snapshot.lib: $(V8REPO)/build/Debug/lib/v8_snapshot.lib
+	cp $^ $@

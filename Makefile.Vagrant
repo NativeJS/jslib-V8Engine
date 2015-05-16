@@ -1,0 +1,42 @@
+##
+# Vagrant makefile
+# description     : Helper to create virtualised guest and build libraries
+# author          : Almir Kadric
+# created on      : 2014-10-29
+##
+
+
+
+##
+# Global variables
+##
+
+# Set default shell
+SHELL = /bin/bash
+
+#
+ifndef ARCH
+    $(error MUST PROVIDE ARCH ARGUMENT)
+endif
+ifndef LTYPE
+    $(error MUST PROVIDE LTYPE ARGUMENT)
+endif
+
+
+
+###
+# V8 Engine Library Targets
+###
+.PHONY: build-Linux build-Android build-MacOSX build-Windows
+
+#
+build-Linux:
+	vagrant up linux
+
+#
+build-Android:
+	vagrant up linux
+
+#
+build-Windows:
+	vagrant up windows

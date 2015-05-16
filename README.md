@@ -28,9 +28,9 @@ make decompress
 
 Platforms
 ---------
-The following platforms are supported by this project and will be present within their respective build folder:
- * Android (ia32 shared, ia32 static, arm shared, arm static, arm64 shared, arm64 static)
- * Linux ()
+The following platforms are supported by this project and will be present within their respective build folders:
+ * Android (ia32 shared, ia32 static, arm shared, arm static, arm64 static)
+ * Linux (ia32 shared, ia32 static, x64 shared, x64 static, arm shared, arm static, arm64 shared, arm64 static)
  * MacOSX (ia32 static, x64 shared, x64 static)
  * Windows (ia32 shared, ia32 static, x64 shared, x64 static)
 
@@ -39,7 +39,9 @@ NOTES:
    the V8 team does not directly support IOS and as a result we will not support IOS for the time being.
  * Similar to IOS, WindowsPhone does not allow the creation of executable memory pages so same result as above.
  * ia32 shared debug build is currently broken for MacOSX on all versions. Since we need both release debug and release
-   ia32 shared build is ignored till this is fixed by the v8 team.
+   ia32 shared build is ignored till this is fixed by the V8 team.
+ * arm64 shared debug and release is currently broken for Android. arm64 shared build is ignored till this is fixed by
+   the V8 team.
 
 Licenses
 --------
