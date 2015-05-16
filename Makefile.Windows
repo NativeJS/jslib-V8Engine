@@ -155,15 +155,17 @@ clean-libs:
 # NOTE: we list them individually as we have found that wildcard targets can fail
 $(PLATFORMDIR).release/icudt.dll: $(V8REPO)/build/Release/icudt.dll
 	cp $^ $@
-$(PLATFORMDIR).release/icui18n.lib: $(V8REPO)/build/Release/lib/icui18n.lib
-	cp $^ $@
-$(PLATFORMDIR).release/icuuc.lib: $(V8REPO)/build/Release/lib/icuuc.lib
-	cp $^ $@
 $(PLATFORMDIR).release/icui18n.dll: $(V8REPO)/build/Release/icui18n.dll
 	cp $^ $@
 $(PLATFORMDIR).release/icuuc.dll: $(V8REPO)/build/Release/icuuc.dll
 	cp $^ $@
 $(PLATFORMDIR).release/v8.dll: $(V8REPO)/build/Release/v8.dll
+	cp $^ $@
+$(PLATFORMDIR).release/icui18n.lib: $(V8REPO)/build/Release/lib/icui18n.lib
+	cp $^ $@
+$(PLATFORMDIR).release/icuuc.lib: $(V8REPO)/build/Release/lib/icuuc.lib
+	cp $^ $@
+$(PLATFORMDIR).release/v8.lib: $(V8REPO)/build/Release/lib/v8.lib
 	cp $^ $@
 $(PLATFORMDIR).release/v8_base.lib: $(V8REPO)/build/Release/lib/v8_base.lib
 	cp $^ $@
@@ -177,15 +179,17 @@ $(PLATFORMDIR).release/v8_snapshot.lib: $(V8REPO)/build/Release/lib/v8_snapshot.
 	cp $^ $@
 $(PLATFORMDIR).debug/icudt.dll: $(V8REPO)/build/Debug/icudt.dll
 	cp $^ $@
-$(PLATFORMDIR).debug/icui18n.lib: $(V8REPO)/build/Debug/lib/icui18n.lib
-	cp $^ $@
-$(PLATFORMDIR).debug/icuuc.lib: $(V8REPO)/build/Debug/lib/icuuc.lib
-	cp $^ $@
 $(PLATFORMDIR).debug/icui18n.dll: $(V8REPO)/build/Debug/icui18n.dll
 	cp $^ $@
 $(PLATFORMDIR).debug/icuuc.dll: $(V8REPO)/build/Debug/icuuc.dll
 	cp $^ $@
 $(PLATFORMDIR).debug/v8.dll: $(V8REPO)/build/Debug/v8.dll
+	cp $^ $@
+$(PLATFORMDIR).debug/icui18n.lib: $(V8REPO)/build/Debug/lib/icui18n.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/icuuc.lib: $(V8REPO)/build/Debug/lib/icuuc.lib
+	cp $^ $@
+$(PLATFORMDIR).debug/v8.lib: $(V8REPO)/build/Debug/lib/v8.lib
 	cp $^ $@
 $(PLATFORMDIR).debug/v8_base.lib: $(V8REPO)/build/Debug/lib/v8_base.lib
 	cp $^ $@
