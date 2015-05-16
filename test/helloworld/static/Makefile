@@ -33,7 +33,7 @@ endif
 
 #
 MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
-CXX11 = g++ -std=c++11 -stdlib=libstdc++
+CXX11 = g++ -std=c++11
 INCLUDEDIR = ../../../include
 BUILDDIR = ../../../build
 
@@ -44,17 +44,24 @@ BUILDDIR = ../../../build
 ##
 
 #
-.PHONY: build build-Windows run run-Windows clean build-Windows
+.PHONY: build build-Android build-Linux build-MacOSX build-Windows
 
 #
 build: build-$(PLATFORM)
 
 #
+build-Linux:
+	$(CXX11) -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.debug
+	$(CXX11) -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.debug
+	$(CXX11) -m64 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).x64.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.debug
+	$(CXX11) -m64 -I$(INCLUDEDIR)  $(BUILDDIR)/$(PLATFORM).x64.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.debug
+
+#
 build-MacOSX:
-	$(CXX11) -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static/debug/*.a ../helloworld.cpp -o helloworld.ia32.debug
-	$(CXX11) -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static/release/*.a ../helloworld.cpp -o helloworld.ia32.release
-	$(CXX11) -m64 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).x64.static/debug/*.a ../helloworld.cpp -o helloworld.x64.debug
-	$(CXX11) -m64 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).x64.static/release/*.a ../helloworld.cpp -o helloworld.x64.release
+	$(CXX11) -stdlib=libstdc++ -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.debug
+	$(CXX11) -stdlib=libstdc++ -m32 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).ia32.static.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.release
+	$(CXX11) -stdlib=libstdc++ -m64 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).x64.static.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.debug
+	$(CXX11) -stdlib=libstdc++ -m64 -I$(INCLUDEDIR) $(BUILDDIR)/$(PLATFORM).x64.static.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.release
 
 #
 build-Windows:
@@ -63,15 +70,27 @@ build-Windows:
 	$(MSBUILD) /t:Build /p:Configuration=Release /p:Platform=x64 helloworld.sln
 	$(MSBUILD) /t:Build /p:Configuration=Release /p:Platform=Win32 helloworld.sln
 
+
+
+#
+.PHONY: run run-Android run-Linux run-MacOSX run-Windows
+
 #
 run: run-$(PLATFORM)
 
 #
+run-Linux:
+	./helloworld.$(PLATFORM).ia32.debug
+	./helloworld.$(PLATFORM).ia32.release
+	./helloworld.$(PLATFORM).x64.debug
+	./helloworld.$(PLATFORM).x64.release
+
+#
 run-MacOSX:
-	./helloworld.ia32.debug
-	./helloworld.ia32.release
-	./helloworld.x64.debug
-	./helloworld.x64.release
+	./helloworld.$(PLATFORM).ia32.debug
+	./helloworld.$(PLATFORM).ia32.release
+	./helloworld.$(PLATFORM).x64.debug
+	./helloworld.$(PLATFORM).x64.release
 
 #
 run-Windows:
@@ -80,11 +99,27 @@ run-Windows:
 	./Win32/Debug/helloworld.exe
 	./Win32/Release/helloworld.exe
 
+
+
+#
+.PHONY: clean clean-Android clean-Linux clean-MacOSX clean-Windows
+
 #
 clean: clean-$(PLATFORM)
 
 #
+clean-Linux:
+	rm -f ./helloworld.$(PLATFORM).ia32.debug
+	rm -f ./helloworld.$(PLATFORM).ia32.release
+	rm -f ./helloworld.$(PLATFORM).x64.debug
+	rm -f ./helloworld.$(PLATFORM).x64.release
+
+#
 clean-MacOSX:
+	rm -f ./helloworld.$(PLATFORM).ia32.debug
+	rm -f ./helloworld.$(PLATFORM).ia32.release
+	rm -f ./helloworld.$(PLATFORM).x64.debug
+	rm -f ./helloworld.$(PLATFORM).x64.release
 
 #
 clean-Windows:

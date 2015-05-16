@@ -13,5 +13,5 @@
 /test/helloworld/*/helloworld.vcxproj.user
 /test/helloworld/*/Win32
 /test/helloworld/*/x64
-/test/helloworld/*/helloworld.ia32.*
-/test/helloworld/*/helloworld.x64.*
+/test/helloworld/*/helloworld.*.debug
+/test/helloworld/*/helloworld.*.release
