@@ -108,8 +108,8 @@ help:
 define helpBuild
   build           Build V8 Engine library files [defaults: ARCH=x64 LTYPE=static]
   build-all       Build V8 Engine shared and static library files for all architectures
-  compress        Compress build into split files
-  decompress      Decompress build archive
+  compress        Compress builds into *.tar.gz files
+  decompress      Decompress builds from *.tar.gz files
 endef
 export helpBuild
 
@@ -148,10 +148,6 @@ copy-headers:
 	sed -e 's/#include "include\/v8-platform.h"/#include "..\/v8-platform.h"/' -i'.backup' ./include/libplatform/libplatform.h
 
 #
-deps:
-	$(MAKE) -f Makefile.$(PLATFORM) deps
-
-#
 deps-repo:
 	# Get depot_tools via git
 	$(call gitClone,$(DEPOTTOOLSURL),"$(DEPOTTOOLSREPO)")
@@ -179,10 +175,10 @@ export helpTest
 
 #
 test-helloworld:
-	$(MAKE) -C ./test/helloworld/shared build
-	$(MAKE) -C ./test/helloworld/static build
-	$(MAKE) -C ./test/helloworld/shared run
-	$(MAKE) -C ./test/helloworld/static run
+	$(MAKE) -C ./test/helloworld/shared build PLATFORM=$(PLATFORM)
+	$(MAKE) -C ./test/helloworld/static build PLATFORM=$(PLATFORM)
+	$(MAKE) -C ./test/helloworld/shared run PLATFORM=$(PLATFORM)
+	$(MAKE) -C ./test/helloworld/static run PLATFORM=$(PLATFORM)
 
 
 
