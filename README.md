@@ -7,7 +7,7 @@ necessary.
 
 Branching & Tagging
 ---------------
-This project will be tagged according to the V8 version that was compiled.
+
 
 Compile options
 ---------------
@@ -16,15 +16,7 @@ present in the V8 Makefiles.
 
 Compression
 -----------
-Due to the GitHub file size limitations (100MB), the compiled static library files will be compressed using gzip and
-archive will be split up into files no bigger than 50MB.
 
-The headers however, due to their small size and text nature will remain uncompressed.
-
-To decompress static library files, run:
-```
-make decompress
-```
 
 Platforms
 ---------
