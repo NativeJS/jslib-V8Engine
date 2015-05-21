@@ -3,7 +3,7 @@
 
 # Install required packages
 if which apt-get >/dev/null 2>&1; then
-	sudo apt-get install git g++-multilib
+	sudo apt-get install -y git g++-multilib
 else
 	echo "Could not find supported package manager" >&2
 	exit 1;

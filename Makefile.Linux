@@ -29,6 +29,9 @@ PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
 DEPSDIR = ./deps
 V8REPO = $(DEPSDIR)/v8
 
+# Additional GYP flags to include additional gyp options
+GYPFLAGS="-I../../sbin/gyp/v8.gpyi"
+
 
 
 ##
@@ -142,8 +145,8 @@ copy-headers:
 #
 build-libs:
 	# Configure & Build V8 Engine libraries using g++ makefiles
-	$(MAKE) -C $(V8REPO) $(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
-	$(MAKE) -C $(V8REPO) $(ARCH).release -j$(JOBS) component=$(LTYPE)_library
+	GYPFLAGS=$(GYPFLAGS) $(MAKE) -C $(V8REPO) $(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
+	GYPFLAGS=$(GYPFLAGS) $(MAKE) -C $(V8REPO) $(ARCH).release -j$(JOBS) component=$(LTYPE)_library
 
 #
 clean-libs:

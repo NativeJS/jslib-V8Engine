@@ -1,11 +1,7 @@
 /.gitattributes
 /.idea/
 /.vagrant/
-/build/*/*.a
-/build/*/*.lib
-/build/*/*.so
-/build/*/*.dylib
-/build/*/*.dll
+/build/*
 /deps/
 /test/helloworld/*/helloworld.opensdf
 /test/helloworld/*/helloworld.sdf
@@ -15,3 +11,11 @@
 /test/helloworld/*/x64
 /test/helloworld/*/helloworld.*.debug
 /test/helloworld/*/helloworld.*.release
+/test/helloworld/*/bin/
+/test/helloworld/*/build.xml
+/test/helloworld/*/gen/
+/test/helloworld/*/libs/
+/test/helloworld/*/local.properties
+/test/helloworld/*/obj/
+/test/helloworld/*/proguard-project.txt
+/test/helloworld/*/project.properties

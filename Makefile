@@ -124,17 +124,15 @@ build-all:
 #
 compress:
 	cd $(BUILDDIR) && \
-	for platform in $$(ls -d $(PLATFORM).*); do \
-		(cd $${platform}/debug && tar -cz $$(find . | egrep '.(a|lib|so|dll)') | split -b 50m - ./$${platform}_debug.tgz_); \
-		(cd $${platform}/release && tar -cz $$(find . | egrep '.(a|lib|so|dll)') | split -b 50m - ./$${platform}_release.tgz_); \
+	for platform in $$(ls -d $(PLATFORM).* | grep -v '.tar.gz$$'); do \
+		tar czf $${platform}.tar.gz $${platform}; \
 	done
 
 #
 decompress:
 	cd $(BUILDDIR) && \
-    for platform in $$(ls -d $(PLATFORM).*); do \
-    	(cd $${platform}/debug && cat ./$${platform}_debug.tgz_* | tar xz); \
-    	(cd $${platform}/release && cat ./$${platform}_release.tgz_* | tar xz); \
+    for platform in $$(ls -d $(PLATFORM).*.tar.gz); do \
+		tar xzf $${platform}; \
     done
 
 #
@@ -198,7 +196,7 @@ export helpClean
 
 #
 clean:
-	rm -rf $(BUILDDIR)/$(PLATFORM).*
+	rm -rf $(ls $(BUILDDIR)/$(PLATFORM).* | grep -v '.tar.gz$$')
 
 #
 clean-tests:

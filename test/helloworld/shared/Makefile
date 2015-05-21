@@ -31,12 +31,21 @@ ifndef PLATFORM
     endif
 endif
 
+# Try and guess android paths if not set
+ANDROID_NDK_ROOT ?= $(shell ls -d /opt/android-ndk-r10d 2>/dev/null || ls -d /Applications/android-ndk-r10d 2>/dev/null)
+ANDROID_SDK_ROOT ?= $(shell ls -d /opt/android-sdk-r24.2 2>/dev/null || ls -d /Applications/android-sdk-r24.2 2>/dev/null)
+APACHE_ANT_PATH ?= $(shell ls /opt/local/bin/ant 2>/dev/null)
+ADB = $(ANDROID_SDK_ROOT)/platform-tools/adb
+
 #
-MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
-CXX11 = g++ -std=c++11
 INCLUDEDIR = ../../../include
 BUILDDIR = ../../../build
-V8LIBS = -licui18n -licuuc -lv8
+V8LIBS =  -lv8_base -lv8_libbase -lv8_libplatform -lv8_snapshot -lv8 -licui18n -licuuc -licudata -pthread
+TESTFILES = ../main.cpp ../execute_js.cpp
+CXX11 = g++ -std=c++11 -I$(INCLUDEDIR)
+
+#
+MSBUILD = "/cygdrive/c/Program Files (x86)/MSBuild/12.0/Bin/MSBuild.exe"
 
 
 
@@ -51,18 +60,36 @@ V8LIBS = -licui18n -licuuc -lv8
 build: build-$(PLATFORM)
 
 #
+build-Android:
+	# Check that ANDROID_NDK_ROOT is specified
+    ifndef ANDROID_NDK_ROOT
+        $(error MUST SPECIFY ANDROID_NDK_ROOT path)
+    endif
+    ifndef ANDROID_SDK_ROOT
+        $(error MUST SPECIFY ANDROID_SDK_ROOT path)
+    endif
+    ifndef APACHE_ANT_PATH
+        $(error MUST SPECIFY APACHE_ANT_PATH path)
+    endif
+
+	#
+	$(ANDROID_NDK_ROOT)/ndk-build
+	$(ANDROID_SDK_ROOT)/tools/android update project -p . -t android-10 -s
+	$(APACHE_ANT_PATH) debug
+
+#
 build-Linux:
-	$(CXX11) -m62 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared.debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.debug
-	$(CXX11) -m32 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared.release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.release
-	$(CXX11) -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared.debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.debug
-	$(CXX11) -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared.release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.release
+	$(CXX11) -m32 -L$(BUILDDIR)/$(PLATFORM).ia32.shared.debug $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).ia32.debug
+	$(CXX11) -m32 -L$(BUILDDIR)/$(PLATFORM).ia32.shared.release $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).ia32.release
+	$(CXX11) -m64 -L$(BUILDDIR)/$(PLATFORM).x64.shared.debug $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).x64.debug
+	$(CXX11) -m64 -L$(BUILDDIR)/$(PLATFORM).x64.shared.release $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).x64.release
 
 #
 build-MacOSX:
-	#$(CXX11) -stdlib=libstdc++ -m62 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared.debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.debug
-	#$(CXX11) -stdlib=libstdc++ -m32 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).ia32.shared.release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).ia32.shared.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).ia32.release
-	$(CXX11) -stdlib=libstdc++ -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared.debug $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared.debug/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.debug
-	$(CXX11) -stdlib=libstdc++ -m64 -I$(INCLUDEDIR) -L$(BUILDDIR)/$(PLATFORM).x64.shared.release $(V8LIBS) $(BUILDDIR)/$(PLATFORM).x64.shared.release/*.a ../helloworld.cpp -o helloworld.$(PLATFORM).x64.release
+	#$(CXX11) -stdlib=libstdc++ -m32 -L$(BUILDDIR)/$(PLATFORM).ia32.shared.debug $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).ia32.debug
+	#$(CXX11) -stdlib=libstdc++ -m32 -L$(BUILDDIR)/$(PLATFORM).ia32.shared.release $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).ia32.release
+	$(CXX11) -stdlib=libstdc++ -m64 -L$(BUILDDIR)/$(PLATFORM).x64.shared.debug $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).x64.debug
+	$(CXX11) -stdlib=libstdc++ -m64 -L$(BUILDDIR)/$(PLATFORM).x64.shared.release $(TESTFILES) $(V8LIBS) -o helloworld.$(PLATFORM).x64.release
 
 #
 build-Windows:
@@ -80,11 +107,18 @@ build-Windows:
 run: run-$(PLATFORM)
 
 #
+run-Android:
+	$(ADB) install -r bin/HelloWorld-debug.apk
+	$(ADB) shell am start -n com.NativeJS.jslibV8Engine/.HelloWorld
+	#$(ADB) logcat -s *:E helloworld:*
+	#$(ANDROID_NDK_ROOT)/ndk-gdb --adb=$(ANDROID_SDK_ROOT)/platform-tools/adb --start com.NativeJS.jslibV8Engine.HelloWorld
+
+#
 run-Linux:
-	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared.debug ./helloworld.$(PLATFORM).ia32.debug
-	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared.release ./helloworld.$(PLATFORM).ia32.release
-	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared.debug ./helloworld.$(PLATFORM).x64.debug
-	DYLD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared.release ./helloworld.$(PLATFORM).x64.release
+	LD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared.debug ./helloworld.$(PLATFORM).ia32.debug
+	LD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).ia32.shared.release ./helloworld.$(PLATFORM).ia32.release
+	LD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared.debug ./helloworld.$(PLATFORM).x64.debug
+	LD_LIBRARY_PATH=$(BUILDDIR)/$(PLATFORM).x64.shared.release ./helloworld.$(PLATFORM).x64.release
 
 #
 run-MacOSX:
@@ -109,7 +143,23 @@ run-Windows:
 clean: clean-$(PLATFORM)
 
 #
+clean-Android:
+	$(ANDROID_NDK_ROOT)/ndk-build clean
+	$(APACHE_ANT_PATH) clean
+
+#
+clean-Linux:
+	rm -f ./helloworld.$(PLATFORM).ia32.debug
+	rm -f ./helloworld.$(PLATFORM).ia32.release
+	rm -f ./helloworld.$(PLATFORM).x64.debug
+	rm -f ./helloworld.$(PLATFORM).x64.release
+
+#
 clean-MacOSX:
+	rm -f ./helloworld.$(PLATFORM).ia32.debug
+	rm -f ./helloworld.$(PLATFORM).ia32.release
+	rm -f ./helloworld.$(PLATFORM).x64.debug
+	rm -f ./helloworld.$(PLATFORM).x64.release
 
 #
 clean-Windows:

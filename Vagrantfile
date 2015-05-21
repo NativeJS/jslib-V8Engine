@@ -41,7 +41,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		# Setup sync folder mounts
 		linux.vm.synced_folder ".", "/vagrant", disabled: true
 		if OS.windows? then
-			linux.vm.synced_folder ".", "/vagrant", type: "smb"
+			linux.vm.synced_folder ".", "/vagrant", type: "rsync", rsync__exclude: ["build"]
 		else
 			linux.vm.synced_folder ".", "/vagrant", type: "nfs"
 		end
@@ -53,7 +53,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		linux.ssh.forward_agent = true
 
 		# When prvisioning, make sure dependencies are installed
-		linux.vm.provision "shell", path: "./sbin/Linux/install_dependencies.sh"
+		linux.vm.provision "shell", path: "./sbin/vagrant/linux/install_guest_dependencies.sh"
 	end
 
 	#

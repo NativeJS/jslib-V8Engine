@@ -29,6 +29,9 @@ PLATFORMDIR = $(BUILDDIR)/$(PLAFTORM).$(ARCH).$(LTYPE)
 DEPSDIR = ./deps
 V8REPO = $(DEPSDIR)/v8
 
+# Additional GYP flags to include additional gyp options
+GYPFLAGS="-I../../sbin/gyp/v8.gpyi"
+
 # Determine the host platform
 ifeq ($(OS),Windows_NT)
     HOSTPLATFORM=Windows
@@ -166,8 +169,8 @@ copy-headers:
 #
 build-libs:
 	# Configure & Build V8 Engine libraries using g++ makefiles
-	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -C $(V8REPO) android_$(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
-	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) $(MAKE) -C $(V8REPO) android_$(ARCH).release -j$(JOBS) component=$(LTYPE)_library
+	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) GYPFLAGS=$(GYPFLAGS) $(MAKE) -C $(V8REPO) android_$(ARCH).debug -j$(JOBS) component=$(LTYPE)_library
+	ANDROID_NDK_ROOT=$(ANDROID_NDK_ROOT) GYPFLAGS=$(GYPFLAGS) $(MAKE) -C $(V8REPO) android_$(ARCH).release -j$(JOBS) component=$(LTYPE)_library
 
 #
 clean-libs:
