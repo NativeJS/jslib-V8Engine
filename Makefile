@@ -196,7 +196,7 @@ export helpClean
 
 #
 clean:
-	rm -rf $(ls $(BUILDDIR)/$(PLATFORM).* | grep -v '.tar.gz$$')
+	rm -rf $$(ls -d $(BUILDDIR)/$(PLATFORM).* | grep -v '.tar.gz$$')
 
 #
 clean-tests:
